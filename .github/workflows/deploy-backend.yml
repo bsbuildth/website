@@ -32,27 +32,41 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to Railway
+      - name: Deploy to Render
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "ℹ️  RENDER_DEPLOY_HOOK not configured"
+            echo ""
+            echo "Render service exists at: https://website-api-lmf9.onrender.com"
+            echo ""
+            echo "To enable auto-deploy to Render:"
+            echo "1. Go to https://dashboard.render.com"
+            echo "2. Login with songyos2528@gmail.com"
+            echo "3. Click on 'website-api' service"
+            echo "4. Go to Settings → Deploy Hooks"
+            echo "5. Create Deploy Hook (name: 'GitHub Auto Deploy')"
+            echo "6. Copy the webhook URL"
+            echo "7. Add to GitHub Secrets:"
+            echo "   - Name: RENDER_DEPLOY_HOOK"
+            echo "   - Value: (paste the webhook URL)"
+            echo ""
+            echo "Once configured, backend will auto-deploy on every push."
+          else
+            echo "✅ Triggering Render deployment..."
+            curl -X POST "$RENDER_DEPLOY_HOOK"
+            echo ""
+            echo "✅ Deployment triggered. Render is now updating the backend."
+            echo "Backend will be live at: https://website-api-lmf9.onrender.com"
+          fi
+
+      - name: Deploy to Railway (Alternative)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "ℹ️  Railway token not configured. Skipping automated Railway deployment."
-            echo ""
-            echo "To enable auto-deploy to Railway:"
-            echo "1. Go to https://railway.app"
-            echo "2. Login and create an account (if needed)"
-            echo "3. Create new project → Deploy from GitHub"
-            echo "4. Select: songyos2528/website repository"
-            echo "5. Configure root directory: api"
-            echo "6. Add environment variables:"
-            echo "   - NODE_ENV=production"
-            echo "   - PORT=3000"
-            echo "7. Go to https://railway.app/account/tokens"
-            echo "8. Create API token"
-            echo "9. Add to GitHub Secrets: RAILWAY_TOKEN"
-            echo ""
-            echo "Once configured, Railway will auto-deploy on every push to main branch."
+            echo "ℹ️  Railway token not configured (using Render instead)"
           else
             echo "✅ Railway token found. Deploying..."
             npm install -g @railway/cli
