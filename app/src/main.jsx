@@ -17,7 +17,7 @@ const RootApp = () => {
   }, []);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/website/">
       <App />
     </BrowserRouter>
   );
