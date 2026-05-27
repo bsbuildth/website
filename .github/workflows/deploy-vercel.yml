@@ -1,0 +1,21 @@
+name: Deploy Backend to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-vercel.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy API to Vercel
+        run: |
+          npm install -g vercel
+          cd api
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes || echo "⚠️  Vercel token not configured. To enable automatic Vercel deployment: 1) Create free account at vercel.com 2) Get API token from https://vercel.com/account/tokens 3) Add VERCEL_TOKEN to GitHub Secrets"
