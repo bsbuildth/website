@@ -1,0 +1,7 @@
+
+> api@1.0.0 start
+> node server.js
+
+◇ injected env (5) from .env // tip: ⌘ enable debugging { debug: true }
+Backend API running on http://localhost:3000
+Connected to the SQLite database.

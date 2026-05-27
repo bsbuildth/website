@@ -1,0 +1,132 @@
+/* ═══════════════════════════════════
+   FLOATING CONTACT STACK
+═══════════════════════════════════ */
+
+.float-stack {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ─── Base button ─── */
+.float-btn {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+              opacity 0.25s ease, translate 0.3s ease;
+}
+
+.float-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.3);
+}
+
+/* ─── LINE ─── */
+.float-btn--line {
+  background: #06C755;
+  opacity: 0;
+  translate: 0 20px;
+  pointer-events: none;
+}
+
+.float-btn--line.visible {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+  transition-delay: 0.08s;
+}
+
+/* ─── Messenger ─── */
+.float-btn--messenger {
+  background: linear-gradient(135deg, #0099ff 0%, #a033ff 100%);
+  opacity: 0;
+  translate: 0 20px;
+  pointer-events: none;
+}
+
+.float-btn--messenger.visible {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* ─── Toggle (main) button ─── */
+.float-btn--toggle {
+  background: #ff4d4d;
+  width: 58px;
+  height: 58px;
+  animation: floatPulse 2.5s infinite;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.float-btn--toggle.open {
+  background: #e53e3e;
+  animation: none;
+}
+
+.float-btn--toggle:hover {
+  transform: scale(1.1);
+}
+
+@keyframes floatPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(255, 77, 77, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+/* ─── Tooltip label ─── */
+.float-tooltip {
+  position: absolute;
+  right: 66px;
+  background: rgba(0,0,0,1);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(6px);
+  transition: all 0.2s ease;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  letter-spacing: 0.5px;
+}
+
+.float-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: rgba(0,0,0,1);
+  border-right: 0;
+}
+
+.float-btn:hover .float-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 480px) {
+  .float-stack { bottom: 20px; right: 18px; }
+  .float-btn { width: 48px; height: 48px; }
+  .float-btn--toggle { width: 52px; height: 52px; }
+}

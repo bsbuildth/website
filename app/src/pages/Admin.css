@@ -1,0 +1,96 @@
+.admin-dashboard {
+  background-color: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
+  padding: 3rem 1rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 1rem;
+}
+
+.admin-section {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom: 3rem;
+}
+
+.admin-section h2 {
+  margin-bottom: 1.5rem;
+  color: #111;
+}
+
+.admin-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-form input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+.admin-thumb {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Drag & Drop rows */
+.admin-table tbody tr[draggable] {
+  cursor: grab;
+}
+.admin-table tbody tr[draggable]:active {
+  cursor: grabbing;
+}
+.admin-table tbody tr.drag-over {
+  background: #e8f0fe !important;
+  outline: 2px dashed #4a6fa5;
+}
+
+.btn-delete {
+  background-color: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #ff7875;
+}

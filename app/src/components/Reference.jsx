@@ -1,0 +1,181 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import './Reference.css';
+
+const Reference = () => {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('ทั้งหมด');
+  const [lightbox, setLightbox] = useState(null);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/references`)
+      .then(res => {
+        if (!res.ok) throw new Error(`Failed to fetch references: ${res.status}`);
+        return res.json();
+      })
+      .then(data => { setImages(data); setLoading(false); })
+      .catch(err => { console.error('Error fetching references:', err); setLoading(false); });
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = lightbox ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [lightbox]);
+
+  const categories = ['ทั้งหมด', ...Array.from(new Set(images.map(i => i.category)))];
+  const filtered = filter === 'ทั้งหมด' ? images : images.filter(i => i.category === filter);
+  const countFor = (cat) => cat === 'ทั้งหมด' ? images.length : images.filter(i => i.category === cat).length;
+
+  const getImgSrc = (p) => p?.startsWith('http') ? p : `${apiUrl}${p}`;
+
+  const openLightbox = (img, idx) => { setLightbox(img); setLightboxIdx(idx); };
+  const closeLightbox = () => setLightbox(null);
+
+  const goPrev = useCallback(() => {
+    if (lightboxIdx > 0) { setLightboxIdx(lightboxIdx - 1); setLightbox(filtered[lightboxIdx - 1]); }
+  }, [lightboxIdx, filtered]);
+
+  const goNext = useCallback(() => {
+    if (lightboxIdx < filtered.length - 1) { setLightboxIdx(lightboxIdx + 1); setLightbox(filtered[lightboxIdx + 1]); }
+  }, [lightboxIdx, filtered]);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'Escape') closeLightbox();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, goPrev, goNext]);
+
+  // Assign size variant for masonry feel: tall / wide / normal
+  const sizeMap = ['normal', 'tall', 'normal', 'wide', 'normal', 'normal', 'tall', 'wide'];
+
+  return (
+    <section className="ref-section" id="reference">
+      {/* Header */}
+      <div className="ref-header">
+        <div className="ref-header-inner" data-aos="fade-up">
+          <span className="ref-label">OUR WORK</span>
+          <h2 className="ref-title">Design Reference</h2>
+          <p className="ref-desc">แรงบันดาลใจจากงานจริง — เลือกสไตล์ที่ตรงกับความฝันของคุณ</p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="ref-tabs-wrap" data-aos="fade-up">
+        <div className="ref-tabs">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              className={`ref-tab ${filter === cat ? 'active' : ''}`}
+              onClick={() => setFilter(cat)}
+            >
+              {cat}
+              <span className="ref-tab-count">{countFor(cat)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="ref-container">
+        {loading ? (
+          <div className="ref-loading">
+            {[1,2,3,4,5,6].map(n => <div key={n} className="ref-skeleton" />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="ref-empty">ยังไม่มีรูปในหมวดนี้</p>
+        ) : (
+          <div className="ref-masonry">
+            {filtered.map((img, idx) => (
+              <div
+                key={img.id}
+                className={`ref-card ref-card--${sizeMap[idx % sizeMap.length]}`}
+                onClick={() => openLightbox(img, idx)}
+                data-aos="fade-up"
+                data-aos-delay={`${(idx % 4) * 80}`}
+                data-aos-duration="500"
+              >
+                <img src={getImgSrc(img.img_path)} alt={img.title} loading="lazy" />
+                <div className="ref-card-overlay">
+                  <div className="ref-card-info">
+                    <span className="ref-card-cat">{img.category}</span>
+                    <h4 className="ref-card-title">{img.title}</h4>
+                  </div>
+                  <div className="ref-card-zoom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className="ref-lb-overlay" onClick={closeLightbox}>
+          <div className="ref-lb-box" onClick={e => e.stopPropagation()}>
+
+            {/* Close */}
+            <button className="ref-lb-close" onClick={closeLightbox}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+
+            {/* Counter */}
+            <div className="ref-lb-counter">{lightboxIdx + 1} / {filtered.length}</div>
+
+            {/* Image */}
+            <div className="ref-lb-img-wrap">
+              <img src={getImgSrc(lightbox.img_path)} alt={lightbox.title} key={lightbox.id} />
+            </div>
+
+            {/* Info */}
+            <div className="ref-lb-meta">
+              <span className="ref-lb-cat-badge">{lightbox.category}</span>
+              <p className="ref-lb-title">{lightbox.title}</p>
+            </div>
+
+            {/* Nav */}
+            <button className="ref-lb-nav ref-lb-prev" onClick={goPrev} disabled={lightboxIdx === 0}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button className="ref-lb-nav ref-lb-next" onClick={goNext} disabled={lightboxIdx === filtered.length - 1}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+
+            {/* Thumbnail strip */}
+            <div className="ref-lb-thumbs">
+              {filtered.map((img, i) => (
+                <div
+                  key={img.id}
+                  className={`ref-lb-thumb ${i === lightboxIdx ? 'active' : ''}`}
+                  onClick={() => { setLightboxIdx(i); setLightbox(img); }}
+                >
+                  <img src={getImgSrc(img.img_path)} alt={img.title} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default Reference;
