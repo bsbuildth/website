@@ -1,0 +1,36 @@
+name: Deploy to Fly.io
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - 'Dockerfile'
+      - '.github/workflows/deploy-flyio.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "ℹ️  Fly.io token not configured"
+            echo "To deploy to Fly.io:"
+            echo "1. Sign up at https://fly.io (free tier available)"
+            echo "2. Create API token at https://web.fly.io/account/tokens"
+            echo "3. Add FLY_API_TOKEN to GitHub Secrets"
+            echo ""
+            echo "Server code is ready - just needs Fly.io account setup"
+          else
+            echo "Deploying to Fly.io..."
+            flyctl deploy --remote-only
+          fi
