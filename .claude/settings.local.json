@@ -59,7 +59,8 @@
       "Bash(npm list *)",
       "Bash(curl -s \"https://website-api-lmf9.onrender.com/api/business-info\")",
       "Bash(curl -I \"https://website-api-lmf9.onrender.com/\")",
-      "Bash(curl -s \"https://api.render.com/v1/services\" -H \"Authorization: Bearer test\")"
+      "Bash(curl -s \"https://api.render.com/v1/services\" -H \"Authorization: Bearer test\")",
+      "Bash(curl -I -L \"https://website-api-lmf9.onrender.com/\")"
     ]
   }
 }

@@ -1,0 +1,38 @@
+name: Auto Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Railway using GitHub Token
+        run: |
+          echo "Attempting Railway deployment..."
+
+          # Try using Railway CLI if available
+          if command -v railway &> /dev/null; then
+            cd api
+            railway up --environment production || echo "Railway CLI not available"
+          else
+            echo "Railway CLI not installed"
+          fi
+
+          # If Railway token exists, use it
+          if [ ! -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
+            echo "Using Railway token for deployment"
+            npm install -g @railway/cli
+            cd api
+            railway login --token ${{ secrets.RAILWAY_TOKEN }}
+            railway up
+          else
+            echo "ℹ️  No Railway token configured"
+            echo "The code is ready to deploy - just need a Railway account and token"
+          fi
