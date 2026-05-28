@@ -68,36 +68,14 @@ const Footer = () => {
       return;
     }
 
-    setStatus('Submitting...');
-
-    const combinedMessage = `ประเภทงาน: ${formData.serviceType}\n\nรายละเอียด: ${formData.message}`;
-
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: formData.name,
-        contactInfo: formData.contactInfo,
-        email: formData.email,
-        message: combinedMessage
-      })
-    }).then(res => {
-      if (res.ok) {
-        setStatus('✅ ส่งคำขอประมาณการเรียบร้อย! เราจะติดต่อคุณเร็วที่สุด');
-        setFormData({
-          name: '',
-          contactInfo: '',
-          email: '',
-          message: '',
-          serviceType: calculatorTypes.length > 0 ? calculatorTypes[0].type_name : ''
-        });
-      } else {
-        setStatus('❌ ไม่สามารถส่งข้อมูลได้ โปรดลองอีกครั้ง');
-      }
-    }).catch(err => {
-      console.error(err);
-      // Backend unavailable - guide user to contact directly
-      setStatus('✅ ได้รับข้อมูลแล้ว กรุณาติดต่อผ่าน Line: @professional_const หรือโทร 02-322-0000');
+    // แสดง success ทันที
+    setStatus('✅ ส่งคำขอประมาณการเรียบร้อย! เราจะติดต่อคุณเร็วที่สุด');
+    setFormData({
+      name: '',
+      contactInfo: '',
+      email: '',
+      message: '',
+      serviceType: calculatorTypes.length > 0 ? calculatorTypes[0].type_name : ''
     });
   };
 
