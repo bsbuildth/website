@@ -12,10 +12,10 @@ const Footer = () => {
   const [status, setStatus] = useState('');
   const [calculatorTypes, setCalculatorTypes] = useState([]);
   const [businessInfo, setBusinessInfo] = useState({
-    company_name: 'ทีมผู้รับเหมา',
+    company_name: 'BS Build',
     phone: '02-322-0000',
-    line_id: '@professional_const',
-    address: 'Sukhumvit, Bangkok, Thailand'
+    line_id: '@bsbuild',
+    address: 'กรุงเทพมหานคร'
   });
 
   useEffect(() => {
@@ -40,10 +40,10 @@ const Footer = () => {
 
         if (info) {
           setBusinessInfo({
-            company_name: info.company_name || 'ทีมผู้รับเหมา',
+            company_name: info.company_name || 'BS Build',
             phone: info.phone || '02-322-0000',
-            line_id: info.line_id || '@professional_const',
-            address: info.address || 'Sukhumvit, Bangkok, Thailand'
+            line_id: info.line_id || '@bsbuild',
+            address: info.address || 'กรุงเทพมหานคร'
           });
         }
       } catch (err) {
