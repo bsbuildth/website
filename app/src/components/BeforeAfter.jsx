@@ -4,8 +4,8 @@ import './BeforeAfter.css';
 const BeforeAfter = () => {
   const [sliderPos, setSliderPos] = useState(50);
   const [images, setImages] = useState({
-    after: '/project_1.png',
-    before: '/project_2.png'
+    after: '/website/project_1.png',
+    before: '/website/project_2.png'
   });
   const [loading, setLoading] = useState(true);
 
@@ -24,8 +24,8 @@ const BeforeAfter = () => {
         });
 
         setImages({
-          after: imageMap['before_after_after']?.image_path || '/project_1.png',
-          before: imageMap['before_after_before']?.image_path || '/project_2.png'
+          after: imageMap['before_after_after']?.image_path || '/website/project_1.png',
+          before: imageMap['before_after_before']?.image_path || '/website/project_2.png'
         });
       } catch (err) {
         console.error('Error fetching before/after images:', err);

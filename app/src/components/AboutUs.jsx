@@ -70,7 +70,7 @@ const AboutUs = () => {
           </div>
         </div>
         <div className="about-image-wrapper">
-          <img src="/project_1.png" alt="Professional team at construction site" className="about-image" />
+          <img src="/website/project_1.png" alt="Professional team at construction site" className="about-image" />
           <div className="about-image-accent"></div>
         </div>
       </div>
