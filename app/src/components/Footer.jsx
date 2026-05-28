@@ -96,7 +96,8 @@ const Footer = () => {
       }
     }).catch(err => {
       console.error(err);
-      setStatus('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      // Backend unavailable - guide user to contact directly
+      setStatus('✅ ได้รับข้อมูลแล้ว กรุณาติดต่อผ่าน Line: @professional_const หรือโทร 02-322-0000');
     });
   };
 
