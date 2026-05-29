@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { getCalculatorTypes, getBusinessInfo, submitContact } from '../firebase/api';
 import './Footer.css';
 
 const Footer = () => {
@@ -21,17 +22,10 @@ const Footer = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const [typesRes, infoRes] = await Promise.all([
-          fetch(`${apiUrl}/api/calculator/types`),
-          fetch(`${apiUrl}/api/business-info`)
+        const [types, info] = await Promise.all([
+          getCalculatorTypes(),
+          getBusinessInfo()
         ]);
-
-        if (!typesRes.ok) throw new Error(`Failed to fetch calculator types: ${typesRes.status}`);
-        if (!infoRes.ok) throw new Error(`Failed to fetch business info: ${infoRes.status}`);
-
-        const types = await typesRes.json();
-        const info = await infoRes.json();
 
         setCalculatorTypes(types);
         if (types.length > 0 && !formData.serviceType) {
@@ -70,10 +64,20 @@ const Footer = () => {
 
     setStatus('⏳ กำลังส่ง...');
 
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzovEiAdV-eG79hKvMAtXTZZGClcwn__bzHuXmAKyndf8Jx0rAaqhfTPPCUSRu6EtY/exec';
+    // Apps Script URL handles the email notification (still free, serverless).
+    const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ||
+      'https://script.google.com/macros/s/AKfycbzovEiAdV-eG79hKvMAtXTZZGClcwn__bzHuXmAKyndf8Jx0rAaqhfTPPCUSRu6EtY/exec';
 
     try {
-      await fetch(APPS_SCRIPT_URL, {
+      // 1) Save to Firestore so it shows up in the admin inbox
+      await submitContact(formData);
+    } catch (err) {
+      console.error('Firestore submit error:', err);
+    }
+
+    // 2) Fire-and-forget the Apps Script email notification
+    if (APPS_SCRIPT_URL) {
+      fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
@@ -84,27 +88,17 @@ const Footer = () => {
           serviceType: formData.serviceType,
           message: formData.message
         })
-      });
-      // no-cors mode ไม่ return response body แต่ request ถูกส่งแล้ว
-      setStatus('✅ ส่งคำขอประมาณการเรียบร้อย! เราจะติดต่อคุณเร็วที่สุด');
-      setFormData({
-        name: '',
-        contactInfo: '',
-        email: '',
-        message: '',
-        serviceType: calculatorTypes.length > 0 ? calculatorTypes[0].type_name : ''
-      });
-    } catch (err) {
-      console.error('Submit error:', err);
-      setStatus('✅ ส่งคำขอประมาณการเรียบร้อย! เราจะติดต่อคุณเร็วที่สุด');
-      setFormData({
-        name: '',
-        contactInfo: '',
-        email: '',
-        message: '',
-        serviceType: calculatorTypes.length > 0 ? calculatorTypes[0].type_name : ''
-      });
+      }).catch(err => console.error('Apps Script notify error:', err));
     }
+
+    setStatus('✅ ส่งคำขอประมาณการเรียบร้อย! เราจะติดต่อคุณเร็วที่สุด');
+    setFormData({
+      name: '',
+      contactInfo: '',
+      email: '',
+      message: '',
+      serviceType: calculatorTypes.length > 0 ? calculatorTypes[0].type_name : ''
+    });
   };
 
   return (

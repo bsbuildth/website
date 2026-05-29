@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getReferences } from '../firebase/api';
 import './Reference.css';
 
 const Reference = () => {
@@ -11,11 +12,7 @@ const Reference = () => {
   const apiUrl = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/references`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch references: ${res.status}`);
-        return res.json();
-      })
+    getReferences()
       .then(data => { setImages(data); setLoading(false); })
       .catch(err => { console.error('Error fetching references:', err); setLoading(false); });
   }, []);

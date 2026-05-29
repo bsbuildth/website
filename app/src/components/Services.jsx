@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { FeatherIcon } from './IconMap';
+import { getServices } from '../firebase/api';
 import './Services.css';
 
 const Services = () => {
@@ -9,10 +10,7 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/services`);
-        if (!response.ok) throw new Error(`Failed to fetch services: ${response.status}`);
-        const data = await response.json();
+        const data = await getServices();
         setServices(data);
       } catch (err) {
         console.error('Error fetching services:', err);

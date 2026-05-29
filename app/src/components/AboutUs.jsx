@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { getContentByKey, getSettings } from '../firebase/api';
 import './AboutUs.css';
 
 const AboutUs = () => {
@@ -14,16 +15,10 @@ const AboutUs = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        // Fetch description
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const descRes = await fetch(`${apiUrl}/api/content/about_description`);
-        if (!descRes.ok) throw new Error(`Failed to fetch about description: ${descRes.status}`);
-        const descData = await descRes.json();
-
-        // Fetch settings
-        const settingsRes = await fetch(`${apiUrl}/api/settings`);
-        if (!settingsRes.ok) throw new Error(`Failed to fetch settings: ${settingsRes.status}`);
-        const settingsData = await settingsRes.json();
+        const [descData, settingsData] = await Promise.all([
+          getContentByKey('about_description'),
+          getSettings()
+        ]);
 
         if (descData.thai_content) {
           setAboutContent({ description: descData.thai_content });

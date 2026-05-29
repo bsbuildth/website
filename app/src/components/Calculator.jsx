@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getCalculatorTypes } from '../firebase/api';
 import './Calculator.css';
 
 const Calculator = () => {
@@ -11,10 +12,7 @@ const Calculator = () => {
   useEffect(() => {
     const fetchTypes = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/calculator/types`);
-        if (!response.ok) throw new Error(`Failed to fetch calculator types: ${response.status}`);
-        const data = await response.json();
+        const data = await getCalculatorTypes();
         setCalculatorTypes(data);
         if (data.length > 0) {
           setProjectTypeId(data[0].id);
@@ -87,7 +85,7 @@ const Calculator = () => {
           <div className="calculator-form">
             <div className="calc-form-group">
               <label>ประเภทงาน</label>
-              <select value={projectTypeId || ''} onChange={e => setProjectTypeId(parseInt(e.target.value))}>
+              <select value={projectTypeId || ''} onChange={e => setProjectTypeId(e.target.value)}>
                 {calculatorTypes.map(type => (
                   <option key={type.id} value={type.id}>{type.type_name}</option>
                 ))}

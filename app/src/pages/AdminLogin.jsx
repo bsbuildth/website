@@ -1,5 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase/config';
 import '../components/Header.css';
 
 const AdminLogin = ({ setIsAuthenticated }) => {
@@ -15,23 +17,12 @@ const AdminLogin = ({ setIsAuthenticated }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username, password })
-      });
-
-      if (response.ok) {
-        setIsAuthenticated(true);
-        navigate('/admin');
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Login failed');
-      }
+      await signInWithEmailAndPassword(auth, username.trim(), password);
+      setIsAuthenticated(true);
+      navigate('/admin');
     } catch (err) {
       console.error('Login error:', err);
-      setError('Server connection error');
+      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
     } finally {
       setLoading(false);
     }
@@ -71,13 +62,13 @@ const AdminLogin = ({ setIsAuthenticated }) => {
               color: '#333',
               fontWeight: '500'
             }}>
-              Username
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              placeholder="admin@example.com"
               required
               style={{
                 width: '100%',

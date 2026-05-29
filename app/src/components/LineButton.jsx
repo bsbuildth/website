@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getBusinessInfo } from '../firebase/api';
 import './LineButton.css';
 
 const LineButton = () => {
@@ -7,12 +8,7 @@ const LineButton = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    fetch(`${apiUrl}/api/business-info`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch business info: ${res.status}`);
-        return res.json();
-      })
+    getBusinessInfo()
       .then(data => {
         if (data?.line_id) setLineId(data.line_id);
         if (data?.messenger_url) setMessengerUrl(data.messenger_url);

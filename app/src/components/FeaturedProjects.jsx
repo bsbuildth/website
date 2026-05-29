@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { getProjects, getProject } from '../firebase/api';
 import './FeaturedProjects.css';
 
 const CATEGORY_LABELS = {
@@ -18,11 +19,7 @@ const FeaturedProjects = () => {
   const apiUrl = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
-    fetch(`${apiUrl}/api/projects`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch projects: ${res.status}`);
-        return res.json();
-      })
+    getProjects()
       .then(data => { setProjects(data); setLoading(false); })
       .catch(err => { console.error('Failed to fetch projects:', err); setLoading(false); });
   }, []);
@@ -43,10 +40,8 @@ const FeaturedProjects = () => {
     setSelectedProject(project);
     setDetailLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/api/projects/${project.id}`);
-      if (!res.ok) throw new Error(`Failed to fetch project details: ${res.status}`);
-      const data = await res.json();
-      setProjectDetail(data);
+      const data = await getProject(project.id);
+      setProjectDetail(data || project);
     } catch (err) {
       console.error('Error loading project details:', err);
       setProjectDetail(project);

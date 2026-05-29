@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MarqueeLib from 'react-fast-marquee';
+import { getReviews } from '../firebase/api';
 import './Testimonials.css';
 
 // Handle ESM export issue in v1.6.5
@@ -10,12 +11,7 @@ const Testimonials = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    fetch(`${apiUrl}/api/reviews`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch reviews: ${res.status}`);
-        return res.json();
-      })
+    getReviews()
       .then(data => {
         setReviews(data);
         setLoading(false);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getMenus } from '../firebase/api';
 import './Header.css';
 
 const Header = () => {
@@ -6,8 +7,6 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [menus, setMenus] = useState([]);
   const [lang, setLang] = useState('th');
-
-  const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   useEffect(() => {
     const savedLang = localStorage.getItem('website_lang');
@@ -21,11 +20,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`${API}/api/menus`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch menus: ${res.status}`);
-        return res.json();
-      })
+    getMenus()
       .then(data => setMenus(data))
       .catch(err => console.error('Error fetching menus:', err));
   }, []);

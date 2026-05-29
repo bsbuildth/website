@@ -15,11 +15,12 @@ const RootApp = () => {
       easing: 'ease-out-cubic',
     });
 
-    // Register service worker for offline-first API caching
+    // Data now comes from Firestore — unregister the old API-caching service
+    // worker so it can't serve stale /api responses from a previous deploy.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/website/service-worker.js')
-        .then(reg => console.log('SW registered:', reg.scope))
-        .catch(err => console.error('SW registration failed:', err));
+      navigator.serviceWorker.getRegistrations()
+        .then(regs => regs.forEach(reg => reg.unregister()))
+        .catch(() => {});
     }
   }, []);
 

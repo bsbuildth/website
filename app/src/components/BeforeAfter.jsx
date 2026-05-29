@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import { getImages } from '../firebase/api';
 import './BeforeAfter.css';
 
 const BeforeAfter = () => {
@@ -12,10 +13,7 @@ const BeforeAfter = () => {
   useEffect(() => {
     const fetchBeforeAfterImages = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const response = await fetch(`${apiUrl}/api/images?category=before_after`);
-        if (!response.ok) throw new Error(`Failed to fetch before/after images: ${response.status}`);
-        const data = await response.json();
+        const data = await getImages('before_after');
 
         // Organize images by key: before_after_after and before_after_before
         const imageMap = {};

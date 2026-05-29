@@ -1,8 +1,17 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Admin.css';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
+import {
+  getProjects, getProject, getAllReviews, getCalculatorTypes, getServices,
+  getBusinessInfo, getAllContent, getSettings, getAllReferences, getMenus,
+  getImages, getContacts, addItem, updateItem, deleteItem, setItem,
+  fileToResizedDataURL,
+} from '../firebase/api';
 
-const API = import.meta.env.VITE_API_URL || '';
+// Old image paths are absolute (/website/uploads/..) or data URLs — both render
+// as-is, so the base prefix used throughout the JSX is empty now.
+const API = '';
 
 const Admin = ({ setIsAuthenticated }) => {
   const [projects, setProjects] = useState([]);
@@ -88,8 +97,7 @@ const Admin = ({ setIsAuthenticated }) => {
   }, []);
 
   const fetchHeroBg = () => {
-    fetch(`${API}/api/images?category=hero`)
-      .then(res => res.json())
+    getImages('hero')
       .then(data => {
         const bg = Array.isArray(data) ? data.find(i => i.image_key === 'hero_background') : null;
         if (bg) setHeroBgImage(bg);
@@ -99,25 +107,20 @@ const Admin = ({ setIsAuthenticated }) => {
 
   const handleUploadHeroBg = async () => {
     if (!heroBgFile) { alert('กรุณาเลือกไฟล์รูปก่อน'); return; }
-    if (!heroBgImage?.id) { alert('ยังไม่พบข้อมูลรูปในระบบ — ลอง restart backend'); return; }
     setHeroBgUploading(true);
-    const formData = new FormData();
-    formData.append('image', heroBgFile);
-    formData.append('image_name', 'Hero Background');
-    formData.append('image_category', 'hero');
-    formData.append('sort_order', '0');
     try {
-      const res = await fetch(`${API}/api/images/${heroBgImage.id}`, {
-        method: 'PUT', credentials: 'include', body: formData
+      const isVideo = heroBgFile.type.startsWith('video/');
+      const dataUrl = await fileToResizedDataURL(heroBgFile, 1600, 0.82);
+      await setItem('images', 'hero_background', {
+        image_key: 'hero_background',
+        image_category: 'hero',
+        image_path: dataUrl,
+        media_type: isVideo ? 'video' : 'image',
+        sort_order: 0,
       });
-      if (res.ok) {
-        alert('✅ อัปเดตรูป Hero Background สำเร็จ! กรุณา reload หน้าเว็บเพื่อดูผล');
-        setHeroBgFile(null);
-        fetchHeroBg();
-      } else {
-        const err = await res.json().catch(() => ({}));
-        alert(`❌ Error ${res.status}: ${err.error || 'ไม่สามารถอัปโหลดได้'}`);
-      }
+      alert('✅ อัปเดตรูป Hero Background สำเร็จ! กรุณา reload หน้าเว็บเพื่อดูผล');
+      setHeroBgFile(null);
+      fetchHeroBg();
     } catch (err) {
       alert('❌ ' + err.message);
     }
@@ -125,104 +128,46 @@ const Admin = ({ setIsAuthenticated }) => {
   };
 
   const fetchMenus = () => {
-    fetch(`${API}/api/menus`)
-      .then(res => res.json())
-      .then(data => setMenus(data))
-      .catch(err => console.error(err));
+    getMenus().then(data => setMenus(data)).catch(err => console.error(err));
   };
 
   const handleUpdateMenu = async (id, thai, eng) => {
     try {
-      const res = await fetch(`${API}/api/menus/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ label_thai: thai, label_english: eng }),
-        credentials: 'include'
-      });
-      if (res.ok) {
-        alert('Menu updated successfully!');
-        fetchMenus();
-      }
+      await updateItem('menus', id, { label_thai: thai, label_english: eng });
+      alert('Menu updated successfully!');
+      fetchMenus();
     } catch (err) {
       console.error(err);
     }
   };
 
   const fetchWebsiteContent = () => {
-    fetch(`${API}/api/content`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setWebsiteContent(data))
-      .catch(err => console.error(err));
+    getAllContent().then(data => setWebsiteContent(data)).catch(err => console.error(err));
   };
 
   const fetchDatabaseServices = () => {
-    fetch(`${API}/api/services/all`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setDbServices(data))
-      .catch(err => console.error(err));
+    getServices().then(data => setDbServices(data)).catch(err => console.error(err));
   };
 
   const fetchWebsiteSettings = () => {
-    fetch(`${API}/api/settings`, { credentials: 'include' })
-      .then(res => res.json())
+    getSettings()
       .then(data => {
         const settingsObj = {};
-        data.forEach(s => {
-          settingsObj[s.setting_key] = s.setting_value;
-        });
+        data.forEach(s => { settingsObj[s.setting_key] = s.setting_value; });
         setWebsiteSettings(settingsObj);
       })
       .catch(err => console.error(err));
   };
 
   const fetchReferences = () => {
-    fetch(`${API}/api/references/all`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setReferences(data))
-      .catch(err => console.error(err));
+    getAllReferences().then(data => setReferences(data)).catch(err => console.error(err));
   };
 
-  const fetchNotifSettings = () => {
-    fetch(`${API}/api/notifications/settings`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setNotifSettings(prev => ({ ...prev, ...data })))
-      .catch(err => console.error(err));
-  };
-
-  const handleSaveNotif = async (channel) => {
-    const { enabled, config } = notifSettings[channel];
-    try {
-      const res = await fetch(`${API}/api/notifications/settings/${channel}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ enabled, config })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        alert(`✅ บันทึกการตั้งค่า ${channel} สำเร็จ`);
-      } else if (res.status === 401) {
-        alert('❌ Session หมดอายุ กรุณา Login ใหม่');
-        setIsAuthenticated(false);
-        navigate('/admin/login');
-      } else {
-        alert(`❌ Error ${res.status}: ${data.error || data.message || 'ไม่ทราบสาเหตุ'}`);
-      }
-    } catch (err) {
-      alert(`❌ เกิดข้อผิดพลาด: ${err.message}`);
-    }
-  };
-
-  const handleTestNotif = async (channel) => {
-    setNotifTesting(prev => ({ ...prev, [channel]: true }));
-    setNotifTestResult(prev => ({ ...prev, [channel]: null }));
-    const res = await fetch(`${API}/api/notifications/test/${channel}`, {
-      method: 'POST', credentials: 'include'
-    });
-    const data = await res.json();
-    setNotifTestResult(prev => ({ ...prev, [channel]: data }));
-    setNotifTesting(prev => ({ ...prev, [channel]: false }));
-  };
+  // Notifications run server-side (email/LINE/FB) and aren't available on the
+  // serverless static host — the section is hidden in the JSX below.
+  const fetchNotifSettings = () => {};
+  const handleSaveNotif = async () => {};
+  const handleTestNotif = async () => {};
 
   const updateNotifConfig = (channel, field, value) => {
     setNotifSettings(prev => ({
@@ -233,22 +178,23 @@ const Admin = ({ setIsAuthenticated }) => {
 
   const handleAddReference = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', refTitle);
-    formData.append('category', refCategory);
-    formData.append('sort_order', refSortOrder);
-    if (refImage) formData.append('image', refImage);
-
-    const method = editingRefId ? 'PUT' : 'POST';
-    const url = editingRefId
-      ? `${API}/api/references/${editingRefId}`
-      : `${API}/api/references`;
-
-    const res = await fetch(url, { method, body: formData, credentials: 'include' });
-    if (res.ok) {
+    try {
+      const payload = {
+        title: refTitle,
+        category: refCategory,
+        sort_order: parseInt(refSortOrder) || 0,
+      };
+      if (refImage) payload.img_path = await fileToResizedDataURL(refImage);
+      if (editingRefId) {
+        await updateItem('references', editingRefId, payload);
+      } else {
+        await addItem('references', { ...payload, is_visible: 1 });
+      }
       setRefTitle(''); setRefCategory('ทั่วไป'); setRefImage(null);
       setRefSortOrder('0'); setEditingRefId(null);
       fetchReferences();
+    } catch (err) {
+      alert('❌ ' + err.message);
     }
   };
 
@@ -263,69 +209,33 @@ const Admin = ({ setIsAuthenticated }) => {
 
   const handleDeleteReference = async (id) => {
     if (!window.confirm('ลบรูป Reference นี้?')) return;
-    await fetch(`${API}/api/references/${id}`, { method: 'DELETE', credentials: 'include' });
+    await deleteItem('references', id);
     fetchReferences();
   };
 
   const handleToggleRefVisible = async (ref) => {
-    await fetch(`${API}/api/references/${ref.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ is_visible: ref.is_visible ? 0 : 1 })
-    });
+    await updateItem('references', ref.id, { is_visible: ref.is_visible ? 0 : 1 });
     fetchReferences();
   };
 
   const fetchProjects = () => {
-    fetch(`${API}/api/projects`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setProjects(data))
-      .catch(err => console.error(err));
+    getProjects().then(data => setProjects(data)).catch(err => console.error(err));
   };
 
   const fetchContacts = () => {
-    fetch(`${API}/api/contacts`, { credentials: 'include' })
-      .then(res => {
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-          navigate('/admin/login');
-        }
-        return res.json();
-      })
-      .then(data => setContacts(data))
-      .catch(err => console.error(err));
+    getContacts().then(data => setContacts(data)).catch(err => console.error(err));
   };
 
   const fetchCalculatorTypes = () => {
-    fetch(`${API}/api/calculator/types`)
-      .then(res => res.json())
-      .then(data => setCalculatorTypes(data))
-      .catch(err => console.error(err));
+    getCalculatorTypes().then(data => setCalculatorTypes(data)).catch(err => console.error(err));
   };
 
   const fetchReviews = () => {
-    fetch(`${API}/api/reviews/all`, { credentials: 'include' })
-      .then(res => {
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-          navigate('/admin/login');
-        }
-        return res.json();
-      })
-      .then(data => setReviews(data))
-      .catch(err => console.error(err));
+    getAllReviews().then(data => setReviews(data)).catch(err => console.error(err));
   };
 
   const fetchBusinessInfo = () => {
-    fetch(`${API}/api/business-info`, { credentials: 'include' })
-      .then(res => {
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-          navigate('/admin/login');
-        }
-        return res.json();
-      })
+    getBusinessInfo()
       .then(data => {
         setBusinessInfo({
           company_name: data.company_name || '',
@@ -344,31 +254,22 @@ const Admin = ({ setIsAuthenticated }) => {
     if (!title) { alert('กรุณาใส่ชื่อโครงการ'); return; }
     if (!editingProjectId && !imageFile) { alert('กรุณาเลือกรูปภาพ'); return; }
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('category', projectCategory);
-    formData.append('description', projectDescription);
-    if (imageFile) formData.append('image', imageFile);
-
     try {
-      const url = editingProjectId
-        ? `${API}/api/projects/${editingProjectId}`
-        : `${API}/api/projects`;
-      const method = editingProjectId ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, body: formData, credentials: 'include' });
-      if (res.ok) {
-        setTitle(''); setImageFile(null); setProjectCategory('renovation');
-        setProjectDescription(''); setEditingProjectId(null);
-        fetchProjects();
-        alert('✅ บันทึกสำเร็จ!');
+      const payload = {
+        title,
+        category: projectCategory,
+        description: projectDescription,
+      };
+      if (imageFile) payload.img = await fileToResizedDataURL(imageFile);
+      if (editingProjectId) {
+        await updateItem('projects', editingProjectId, payload);
       } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(`❌ Error ${res.status}: ${errData.error || errData.message || 'ไม่สามารถบันทึกได้'}`);
-        if (res.status === 401) {
-          setIsAuthenticated(false);
-          navigate('/admin/login');
-        }
+        await addItem('projects', { ...payload, sort_order: projects.length, process_images: [] });
       }
+      setTitle(''); setImageFile(null); setProjectCategory('renovation');
+      setProjectDescription(''); setEditingProjectId(null);
+      fetchProjects();
+      alert('✅ บันทึกสำเร็จ!');
     } catch (err) {
       console.error(err);
       alert('❌ เกิดข้อผิดพลาด: ' + err.message);
@@ -416,56 +317,44 @@ const Admin = ({ setIsAuthenticated }) => {
     const newProjects = [...projects];
     const [moved] = newProjects.splice(from, 1);
     newProjects.splice(to, 0, moved);
-    const order = newProjects.map((p, i) => ({ id: p.id, sort_order: i }));
     setProjects(newProjects);
     dragProjectIdx.current = null;
     dragOverProjectIdx.current = null;
-    await fetch(`${API}/api/projects/reorder`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ order })
-    });
+    await Promise.all(newProjects.map((p, i) => updateItem('projects', p.id, { sort_order: i })));
   };
 
   const handleManageImages = async (project) => {
     setManagingImagesForProject(project);
-    const res = await fetch(`${API}/api/projects/${project.id}`);
-    const data = await res.json();
-    setProjectProcessImages(data.process_images || []);
+    const data = await getProject(project.id);
+    setProjectProcessImages(data?.process_images || []);
   };
 
   const handleAddProcessImage = async (e) => {
     e.preventDefault();
     if (!processImageFile) { alert('กรุณาเลือกรูปภาพ'); return; }
-    const formData = new FormData();
-    formData.append('image', processImageFile);
-    formData.append('caption', processImageCaption);
-    const res = await fetch(`${API}/api/projects/${managingImagesForProject.id}/images`, {
-      method: 'POST', body: formData, credentials: 'include'
-    });
-    if (res.ok) {
+    try {
+      const img_path = await fileToResizedDataURL(processImageFile);
+      const next = [...projectProcessImages, { id: Date.now(), img_path, caption: processImageCaption }];
+      await updateItem('projects', managingImagesForProject.id, { process_images: next });
       setProcessImageFile(null); setProcessImageCaption('');
       handleManageImages(managingImagesForProject);
+    } catch (err) {
+      alert('❌ ' + err.message);
     }
   };
 
   const handleDeleteProcessImage = async (imgId) => {
     if (!window.confirm('ลบรูปนี้?')) return;
-    await fetch(`${API}/api/projects/${managingImagesForProject.id}/images/${imgId}`, {
-      method: 'DELETE', credentials: 'include'
-    });
+    const next = projectProcessImages.filter(i => i.id !== imgId);
+    await updateItem('projects', managingImagesForProject.id, { process_images: next });
     handleManageImages(managingImagesForProject);
   };
 
   const handleDeleteProject = async (id) => {
     if (!window.confirm('ต้องการลบโครงการนี้?')) return;
     try {
-      const res = await fetch(`${API}/api/projects/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (res.ok) fetchProjects();
+      await deleteItem('projects', id);
+      fetchProjects();
     } catch (err) {
       console.error(err);
     }
@@ -478,34 +367,27 @@ const Admin = ({ setIsAuthenticated }) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('type_name', calcTypeName);
-    formData.append('base_price', calcTypePrice);
-    formData.append('sort_order', calcTypeSortOrder);
-    if (calcTypeImage) formData.append('image', calcTypeImage);
-
     try {
-      const method = editingCalcTypeId ? 'PUT' : 'POST';
-      const url = editingCalcTypeId
-        ? `${API}/api/calculator/types/${editingCalcTypeId}`
-        : `${API}/api/calculator/types`;
-
-      const res = await fetch(url, {
-        method: method,
-        body: formData,
-        credentials: 'include'
-      });
-
-      if (res.ok) {
-        setCalcTypeName('');
-        setCalcTypePrice('');
-        setCalcTypeImage(null);
-        setCalcTypeSortOrder('0');
-        setEditingCalcTypeId(null);
-        fetchCalculatorTypes();
+      const payload = {
+        type_name: calcTypeName,
+        base_price: parseFloat(calcTypePrice) || 0,
+        sort_order: parseInt(calcTypeSortOrder) || 0,
+      };
+      if (calcTypeImage) payload.example_image_path = await fileToResizedDataURL(calcTypeImage);
+      if (editingCalcTypeId) {
+        await updateItem('calculator_types', editingCalcTypeId, payload);
+      } else {
+        await addItem('calculator_types', payload);
       }
+      setCalcTypeName('');
+      setCalcTypePrice('');
+      setCalcTypeImage(null);
+      setCalcTypeSortOrder('0');
+      setEditingCalcTypeId(null);
+      fetchCalculatorTypes();
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -520,11 +402,8 @@ const Admin = ({ setIsAuthenticated }) => {
   const handleDeleteCalculatorType = async (id) => {
     if (!window.confirm('Are you sure you want to delete this calculator type?')) return;
     try {
-      const res = await fetch(`${API}/api/calculator/types/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (res.ok) fetchCalculatorTypes();
+      await deleteItem('calculator_types', id);
+      fetchCalculatorTypes();
     } catch (err) {
       console.error(err);
     }
@@ -550,33 +429,25 @@ const Admin = ({ setIsAuthenticated }) => {
       role: reviewRole,
       text: reviewText,
       stars: parseInt(reviewStars),
-      is_visible: reviewVisible
+      is_visible: reviewVisible ? 1 : 0
     };
 
     try {
-      const method = editingReviewId ? 'PUT' : 'POST';
-      const url = editingReviewId
-        ? `${API}/api/reviews/${editingReviewId}`
-        : `${API}/api/reviews`;
-
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reviewData),
-        credentials: 'include'
-      });
-
-      if (res.ok) {
-        setReviewName('');
-        setReviewRole('');
-        setReviewText('');
-        setReviewStars('5');
-        setReviewVisible(true);
-        setEditingReviewId(null);
-        fetchReviews();
+      if (editingReviewId) {
+        await updateItem('reviews', editingReviewId, reviewData);
+      } else {
+        await addItem('reviews', { ...reviewData, sort_order: reviews.length });
       }
+      setReviewName('');
+      setReviewRole('');
+      setReviewText('');
+      setReviewStars('5');
+      setReviewVisible(true);
+      setEditingReviewId(null);
+      fetchReviews();
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -592,11 +463,8 @@ const Admin = ({ setIsAuthenticated }) => {
   const handleDeleteReview = async (id) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     try {
-      const res = await fetch(`${API}/api/reviews/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (res.ok) fetchReviews();
+      await deleteItem('reviews', id);
+      fetchReviews();
     } catch (err) {
       console.error(err);
     }
@@ -613,10 +481,7 @@ const Admin = ({ setIsAuthenticated }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${API}/api/admin/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
+      await signOut(auth);
       setIsAuthenticated(false);
       navigate('/');
     } catch (err) {
@@ -627,17 +492,11 @@ const Admin = ({ setIsAuthenticated }) => {
   const handleSaveBusinessInfo = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API}/api/business-info`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(businessInfo),
-        credentials: 'include'
-      });
-      if (res.ok) {
-        alert('Business info saved successfully!');
-      }
+      await setItem('business_info', 'main', businessInfo);
+      alert('Business info saved successfully!');
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -647,20 +506,14 @@ const Admin = ({ setIsAuthenticated }) => {
       return;
     }
     try {
-      const res = await fetch(`${API}/api/content/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thai_content: contentValue }),
-        credentials: 'include'
-      });
-      if (res.ok) {
-        alert('Content updated successfully!');
-        setEditingContentId(null);
-        setContentValue('');
-        fetchWebsiteContent();
-      }
+      await setItem('content', id, { thai_content: contentValue });
+      alert('Content updated successfully!');
+      setEditingContentId(null);
+      setContentValue('');
+      fetchWebsiteContent();
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -686,34 +539,27 @@ const Admin = ({ setIsAuthenticated }) => {
     }
 
     try {
-      const method = editingServiceId ? 'PUT' : 'POST';
-      const url = editingServiceId
-        ? `${API}/api/services/${editingServiceId}`
-        : `${API}/api/services`;
-
-      const res = await fetch(url, {
-        method: method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          icon: serviceIcon,
-          title_thai: serviceTitleThai,
-          description_thai: serviceDescThai,
-          sort_order: parseInt(serviceSortOrder) || 0
-        }),
-        credentials: 'include'
-      });
-
-      if (res.ok) {
-        alert(editingServiceId ? 'Service updated!' : 'Service created!');
-        setServiceIcon('');
-        setServiceTitleThai('');
-        setServiceDescThai('');
-        setServiceSortOrder('0');
-        setEditingServiceId(null);
-        fetchDatabaseServices();
+      const payload = {
+        icon: serviceIcon,
+        title_thai: serviceTitleThai,
+        description_thai: serviceDescThai,
+        sort_order: parseInt(serviceSortOrder) || 0
+      };
+      if (editingServiceId) {
+        await updateItem('services', editingServiceId, payload);
+      } else {
+        await addItem('services', payload);
       }
+      alert(editingServiceId ? 'Service updated!' : 'Service created!');
+      setServiceIcon('');
+      setServiceTitleThai('');
+      setServiceDescThai('');
+      setServiceSortOrder('0');
+      setEditingServiceId(null);
+      fetchDatabaseServices();
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -728,13 +574,8 @@ const Admin = ({ setIsAuthenticated }) => {
   const handleDeleteService = async (id) => {
     if (!window.confirm('Are you sure you want to delete this service?')) return;
     try {
-      const res = await fetch(`${API}/api/services/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (res.ok) {
-        fetchDatabaseServices();
-      }
+      await deleteItem('services', id);
+      fetchDatabaseServices();
     } catch (err) {
       console.error(err);
     }
@@ -751,21 +592,16 @@ const Admin = ({ setIsAuthenticated }) => {
   const handleSaveSettings = async (e) => {
     e.preventDefault();
     try {
-      // Update each setting individually
       const keys = ['projects_count', 'team_count', 'satisfaction_percent'];
       for (const key of keys) {
         if (websiteSettings[key]) {
-          await fetch(`${API}/api/settings/${key}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ setting_value: websiteSettings[key] }),
-            credentials: 'include'
-          });
+          await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] });
         }
       }
       alert('Settings saved successfully!');
     } catch (err) {
       console.error(err);
+      alert('❌ ' + err.message);
     }
   };
 
@@ -1171,8 +1007,8 @@ const Admin = ({ setIsAuthenticated }) => {
         </div>
       </section>
 
-      {/* ─── Notification Settings ─── */}
-      <section className="admin-section">
+      {/* ─── Notification Settings (server-only; hidden on serverless host) ─── */}
+      <section className="admin-section" style={{ display: 'none' }}>
         <h2>🔔 Notification Settings</h2>
         <p style={{ color: '#888', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
           ตั้งค่าช่องทางแจ้งเตือนเมื่อลูกค้ากรอกข้อมูล — เปิดใช้งานและกด <strong>ทดสอบ</strong> เพื่อตรวจสอบ

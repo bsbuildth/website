@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TypeAnimation } from 'react-type-animation';
+import { getImages, getContentByKey } from '../firebase/api';
 import './Hero.css';
 
 const Hero = () => {
@@ -14,11 +15,7 @@ const Hero = () => {
 
   useEffect(() => {
     // Fetch hero background (image or video)
-    fetch(`${apiUrl}/api/images?category=hero`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch hero background: ${res.status}`);
-        return res.json();
-      })
+    getImages('hero')
       .then(data => {
         const bg = Array.isArray(data) ? data.find(i => i.image_key === 'hero_background') : null;
         if (bg?.image_path) {
@@ -30,22 +27,10 @@ const Hero = () => {
 
     const fetchHeroContent = async () => {
       try {
-
-        const responses = await Promise.all([
-          fetch(`${apiUrl}/api/content/hero_title`),
-          fetch(`${apiUrl}/api/content/hero_subtitle`),
-          fetch(`${apiUrl}/api/content/hero_description`)
-        ]);
-
-        const [titleRes, subtitleRes, descRes] = responses;
-        if (!titleRes.ok) throw new Error(`Failed to fetch hero title: ${titleRes.status}`);
-        if (!subtitleRes.ok) throw new Error(`Failed to fetch hero subtitle: ${subtitleRes.status}`);
-        if (!descRes.ok) throw new Error(`Failed to fetch hero description: ${descRes.status}`);
-
         const [titleData, subtitleData, descData] = await Promise.all([
-          titleRes.json(),
-          subtitleRes.json(),
-          descRes.json()
+          getContentByKey('hero_title'),
+          getContentByKey('hero_subtitle'),
+          getContentByKey('hero_description')
         ]);
 
         setHeroContent({
