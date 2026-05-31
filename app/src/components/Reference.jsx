@@ -8,6 +8,7 @@ const Reference = () => {
   const [filter, setFilter] = useState('ทั้งหมด');
   const [lightbox, setLightbox] = useState(null);
   const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const apiUrl = import.meta.env.VITE_API_URL || '';
 
@@ -30,6 +31,15 @@ const Reference = () => {
 
   const openLightbox = (img, idx) => { setLightbox(img); setLightboxIdx(idx); };
   const closeLightbox = () => setLightbox(null);
+
+  // reset the open accordion panel whenever the category filter changes
+  useEffect(() => { setActiveIdx(0); }, [filter]);
+
+  // first tap/click expands the panel; tapping the already-open one opens the lightbox
+  const handlePanelClick = (img, idx) => {
+    if (activeIdx === idx) openLightbox(img, idx);
+    else setActiveIdx(idx);
+  };
 
   const goPrev = useCallback(() => {
     if (lightboxIdx > 0) { setLightboxIdx(lightboxIdx - 1); setLightbox(filtered[lightboxIdx - 1]); }
@@ -89,28 +99,27 @@ const Reference = () => {
         ) : filtered.length === 0 ? (
           <p className="ref-empty">ยังไม่มีรูปในหมวดนี้</p>
         ) : (
-          <div className="ref-masonry">
+          <div className="ref-accordion" data-aos="fade-up">
             {filtered.map((img, idx) => (
               <div
                 key={img.id}
-                className={`ref-card ref-card--${sizeMap[idx % sizeMap.length]}`}
-                onClick={() => openLightbox(img, idx)}
-                data-aos="fade-up"
-                data-aos-delay={`${(idx % 4) * 80}`}
-                data-aos-duration="500"
+                className={`ref-acc-panel ${activeIdx === idx ? 'active' : ''}`}
+                onMouseEnter={() => setActiveIdx(idx)}
+                onClick={() => handlePanelClick(img, idx)}
+                style={{ backgroundImage: `url(${getImgSrc(img.img_path)})` }}
               >
-                <img src={getImgSrc(img.img_path)} alt={img.title} loading="lazy" />
-                <div className="ref-card-overlay">
-                  <div className="ref-card-info">
-                    <span className="ref-card-cat">{img.category}</span>
-                    <h4 className="ref-card-title">{img.title}</h4>
-                  </div>
-                  <div className="ref-card-zoom">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+                <span className="ref-acc-shade" />
+                <span className="ref-acc-num">{String(idx + 1).padStart(2, '0')}</span>
+                <div className="ref-acc-content">
+                  <span className="ref-acc-cat">{img.category}</span>
+                  <h4 className="ref-acc-title">{img.title}</h4>
+                  <span className="ref-acc-zoom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
                       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                       <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
                     </svg>
-                  </div>
+                    ดูภาพเต็ม
+                  </span>
                 </div>
               </div>
             ))}
