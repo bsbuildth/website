@@ -315,7 +315,7 @@
   position: absolute;
   top: 46%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-70deg);
+  transform: translate(-50%, -50%) rotate(-90deg);
   transform-origin: center;
   writing-mode: horizontal-tb;
   color: #fff;
