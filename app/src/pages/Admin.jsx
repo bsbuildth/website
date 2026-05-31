@@ -97,6 +97,10 @@ const Admin = ({ setIsAuthenticated }) => {
   const [refCategory, setRefCategory] = useState('ทั่วไป');
   const [refImage, setRefImage] = useState(null);
   const [refSortOrder, setRefSortOrder] = useState('0');
+  const [refRoomType, setRefRoomType] = useState('');
+  const [refStyle, setRefStyle] = useState('');
+  const [refColorTone, setRefColorTone] = useState('');
+  const [refDetail, setRefDetail] = useState('');
   const [editingRefId, setEditingRefId] = useState(null);
   const [activeTab, setActiveTab] = useState('inbox');
   const [menus, setMenus] = useState([]);
@@ -217,6 +221,10 @@ const Admin = ({ setIsAuthenticated }) => {
         title: refTitle,
         category: refCategory,
         sort_order: parseInt(refSortOrder) || 0,
+        room_type: refRoomType,
+        style: refStyle,
+        color_tone: refColorTone,
+        detail: refDetail,
       };
       if (refImage) payload.img_path = await fileToResizedDataURL(refImage);
       if (editingRefId) {
@@ -226,6 +234,7 @@ const Admin = ({ setIsAuthenticated }) => {
       }
       setRefTitle(''); setRefCategory('ทั่วไป'); setRefImage(null);
       setRefSortOrder('0'); setEditingRefId(null);
+      setRefRoomType(''); setRefStyle(''); setRefColorTone(''); setRefDetail('');
       fetchReferences();
     } catch (err) {
       alert('❌ ' + err.message);
@@ -237,6 +246,10 @@ const Admin = ({ setIsAuthenticated }) => {
     setRefTitle(ref.title);
     setRefCategory(ref.category);
     setRefSortOrder(String(ref.sort_order));
+    setRefRoomType(ref.room_type || '');
+    setRefStyle(ref.style || '');
+    setRefColorTone(ref.color_tone || '');
+    setRefDetail(ref.detail || '');
     setRefImage(null);
     window.scrollTo({ top: document.getElementById('ref-form')?.offsetTop - 80, behavior: 'smooth' });
   };
@@ -1121,9 +1134,27 @@ const Admin = ({ setIsAuthenticated }) => {
               <input type="number" value={refSortOrder} onChange={e => setRefSortOrder(e.target.value)} />
             </div>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '0.75rem' }}>
+            <div>
+              <label>ประเภทห้อง</label>
+              <input value={refRoomType} onChange={e => setRefRoomType(e.target.value)} placeholder="เช่น ห้องนอน, ห้องครัว" />
+            </div>
+            <div>
+              <label>Style (สไตล์)</label>
+              <input value={refStyle} onChange={e => setRefStyle(e.target.value)} placeholder="เช่น Modern, Luxury, Minimal" />
+            </div>
+            <div>
+              <label>โทนสี</label>
+              <input value={refColorTone} onChange={e => setRefColorTone(e.target.value)} placeholder="เช่น ขาว-ไม้, ดำ-ทอง" />
+            </div>
+          </div>
+          <div style={{ marginTop: '0.75rem' }}>
+            <label>รายละเอียด</label>
+            <textarea value={refDetail} onChange={e => setRefDetail(e.target.value)} rows="3" placeholder="อธิบายงาน/วัสดุ/จุดเด่น..." style={{ width: '100%', fontFamily: 'inherit', padding: '0.5rem' }} />
+          </div>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
             <button type="submit" className="btn-primary">{editingRefId ? 'บันทึกการแก้ไข' : 'เพิ่มรูป'}</button>
-            {editingRefId && <button type="button" className="btn-secondary" onClick={() => { setEditingRefId(null); setRefTitle(''); setRefCategory('ทั่วไป'); setRefSortOrder('0'); setRefImage(null); }}>ยกเลิก</button>}
+            {editingRefId && <button type="button" className="btn-secondary" onClick={() => { setEditingRefId(null); setRefTitle(''); setRefCategory('ทั่วไป'); setRefSortOrder('0'); setRefImage(null); setRefRoomType(''); setRefStyle(''); setRefColorTone(''); setRefDetail(''); }}>ยกเลิก</button>}
           </div>
         </form>
 

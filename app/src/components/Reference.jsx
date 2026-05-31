@@ -102,10 +102,27 @@ const Reference = () => {
                 style={{ backgroundImage: `url(${getImgSrc(img.img_path)})` }}
               >
                 <span className="ref-acc-shade" />
-                <span className="ref-acc-num">{String(idx + 1).padStart(2, '0')}</span>
+
+                {/* collapsed view: main title + expand button */}
+                <div className="ref-acc-collapsed">
+                  <span className="ref-acc-vtitle">{img.title}</span>
+                  <span className="ref-acc-plus" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  </span>
+                </div>
+
+                {/* expanded view: full details */}
                 <div className="ref-acc-content">
                   <span className="ref-acc-cat">{img.category}</span>
                   <h4 className="ref-acc-title">{img.title}</h4>
+                  <div className="ref-acc-meta">
+                    {img.room_type && <span><strong>ประเภทห้อง:</strong> {img.room_type}</span>}
+                    {img.style && <span><strong>สไตล์:</strong> {img.style}</span>}
+                    {img.color_tone && <span><strong>โทนสี:</strong> {img.color_tone}</span>}
+                  </div>
+                  {img.detail && <p className="ref-acc-detail">{img.detail}</p>}
                 </div>
               </div>
             ))}
