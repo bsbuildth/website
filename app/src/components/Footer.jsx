@@ -56,8 +56,8 @@ const Footer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.name || !formData.contactInfo || !formData.email || !formData.serviceType) {
+    // Validation (email is optional — most customers prefer Line or phone)
+    if (!formData.name || !formData.contactInfo || !formData.serviceType) {
       setStatus('⚠️ โปรดกรอกข้อมูลให้ครบถ้วน');
       return;
     }
@@ -66,7 +66,7 @@ const Footer = () => {
 
     // Apps Script URL handles the email notification (still free, serverless).
     const APPS_SCRIPT_URL = import.meta.env.VITE_APPS_SCRIPT_URL ||
-      'https://script.google.com/macros/s/AKfycbzovEiAdV-eG79hKvMAtXTZZGClcwn__bzHuXmAKyndf8Jx0rAaqhfTPPCUSRu6EtY/exec';
+      'https://script.google.com/macros/s/AKfycbw56D651ABDA_cpQWrlqPjNl65RvR-0xkXu8YBqtF3OTRALNqOGuYDbx3AeOsvEMkQDJw/exec';
 
     try {
       // 1) Save to Firestore so it shows up in the admin inbox
@@ -108,20 +108,36 @@ const Footer = () => {
           <h2 className="footer-title">Let's Create<br />Something Exceptional.</h2>
           <p style={{marginBottom: '2rem', color: 'var(--text-muted)'}}>ระบบขอใบเสนอราคาออนไลน์ กรอกข้อมูลเพื่อให้เราติดต่อกลับพร้อมประเมินราคาให้ฟรี!</p>
           <div className="footer-contact-info">
-            <div className="contact-item">
+            {businessInfo.phone && (
+            <a href={`tel:${businessInfo.phone}`} className="contact-item" title="โทรศัพท์">
               <span className="contact-icon">📞</span>
-              <p>Phone: {businessInfo.phone}</p>
-            </div>
-            {businessInfo.line_id && (
-            <div className="contact-item">
-              <span className="contact-icon">📱</span>
-              <p>Line: {businessInfo.line_id}</p>
-            </div>
+              <p>{businessInfo.phone}</p>
+            </a>
             )}
-            <div className="contact-item">
+            {businessInfo.line_id && (
+            <a href={`https://line.me/R/ti/p/${businessInfo.line_id.replace('@', '')}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="LINE OA">
+              <span className="contact-icon">💬</span>
+              <p>LINE</p>
+            </a>
+            )}
+            {businessInfo.address && (
+            <a href={`https://www.google.com/maps/search/${encodeURIComponent(businessInfo.address)}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="Google Maps">
               <span className="contact-icon">📍</span>
-              <p>Location: {businessInfo.address}</p>
-            </div>
+              <p>Google Maps</p>
+            </a>
+            )}
+            {businessInfo.facebook && (
+            <a href={businessInfo.facebook} className="contact-item" target="_blank" rel="noopener noreferrer" title="Facebook">
+              <span className="contact-icon">f</span>
+              <p>Facebook</p>
+            </a>
+            )}
+            {businessInfo.email && (
+            <a href={`mailto:${businessInfo.email}`} className="contact-item" title="Email">
+              <span className="contact-icon">✉️</span>
+              <p>Email</p>
+            </a>
+            )}
           </div>
         </div>
         
