@@ -35,12 +35,6 @@ const Reference = () => {
   // reset the open accordion panel whenever the category filter changes
   useEffect(() => { setActiveIdx(0); }, [filter]);
 
-  // first tap/click expands the panel; tapping the already-open one opens the lightbox
-  const handlePanelClick = (img, idx) => {
-    if (activeIdx === idx) openLightbox(img, idx);
-    else setActiveIdx(idx);
-  };
-
   const goPrev = useCallback(() => {
     if (lightboxIdx > 0) { setLightboxIdx(lightboxIdx - 1); setLightbox(filtered[lightboxIdx - 1]); }
   }, [lightboxIdx, filtered]);
@@ -104,8 +98,7 @@ const Reference = () => {
               <div
                 key={img.id}
                 className={`ref-acc-panel ${activeIdx === idx ? 'active' : ''}`}
-                onMouseEnter={() => setActiveIdx(idx)}
-                onClick={() => handlePanelClick(img, idx)}
+                onClick={() => setActiveIdx(idx)}
                 style={{ backgroundImage: `url(${getImgSrc(img.img_path)})` }}
               >
                 <span className="ref-acc-shade" />
@@ -113,13 +106,6 @@ const Reference = () => {
                 <div className="ref-acc-content">
                   <span className="ref-acc-cat">{img.category}</span>
                   <h4 className="ref-acc-title">{img.title}</h4>
-                  <span className="ref-acc-zoom">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-                    </svg>
-                    ดูภาพเต็ม
-                  </span>
                 </div>
               </div>
             ))}
