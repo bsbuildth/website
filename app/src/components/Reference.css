@@ -312,14 +312,18 @@
 .ref-acc-panel.active .ref-acc-collapsed { opacity: 0; pointer-events: none; }
 
 .ref-acc-vtitle {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-70deg);
+  transform-origin: center;
+  writing-mode: horizontal-tb;
   color: #fff;
   font-family: var(--font-display, serif);
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.03em;
-  max-height: 70%;
+  max-width: 360px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -433,6 +437,7 @@
     padding: 0 18px;
   }
   .ref-acc-vtitle {
+    position: static;
     writing-mode: horizontal-tb;
     transform: none;
     max-height: none;
