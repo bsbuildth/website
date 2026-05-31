@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import ToggleSwitch from '../components/ToggleSwitch';
 import './Admin.css';
 import {
   getProjects, getProject, getAllReviews, getCalculatorTypes, getServices,
@@ -26,6 +27,9 @@ const Admin = ({ setIsAuthenticated }) => {
   const [processImageFile, setProcessImageFile] = useState(null);
   const [processImageCaption, setProcessImageCaption] = useState('');
   const [projectProcessImages, setProjectProcessImages] = useState([]);
+  const [expandedImageId, setExpandedImageId] = useState(null);
+  const [hoveredImageId, setHoveredImageId] = useState(null);
+  const [hoveredDeleteBtnId, setHoveredDeleteBtnId] = useState(null);
   const [calculatorTypes, setCalculatorTypes] = useState([]);
   const [calcTypeName, setCalcTypeName] = useState('');
   const [calcTypePrice, setCalcTypePrice] = useState('');
@@ -45,7 +49,8 @@ const Admin = ({ setIsAuthenticated }) => {
     phone: '',
     email: '',
     line_id: '',
-    messenger_url: ''
+    messenger_url: '',
+    facebook: ''
   });
   const [websiteContent, setWebsiteContent] = useState([]);
   const [contentKey, setContentKey] = useState('');
@@ -61,7 +66,8 @@ const Admin = ({ setIsAuthenticated }) => {
   const [websiteSettings, setWebsiteSettings] = useState({
     projects_count: '500',
     team_count: '30',
-    satisfaction_percent: '95'
+    satisfaction_percent: '95',
+    show_about_stats: true
   });
   const [heroBgImage, setHeroBgImage] = useState(null);
   const [heroBgFile, setHeroBgFile] = useState(null);
@@ -245,7 +251,8 @@ const Admin = ({ setIsAuthenticated }) => {
           phone: data.phone || '',
           email: data.email || '',
           line_id: data.line_id || '',
-          messenger_url: data.messenger_url || ''
+          messenger_url: data.messenger_url || '',
+          facebook: data.facebook || ''
         });
       })
       .catch(err => console.error(err));
@@ -639,6 +646,7 @@ const Admin = ({ setIsAuthenticated }) => {
           { key: 'content', label: '📝 เนื้อหา' },
           { key: 'hero', label: '🎬 Hero' },
           { key: 'business', label: '🏢 ข้อมูลธุรกิจ' },
+          { key: 'notifications', label: '🔔 แจ้งเตือน' },
           { key: 'settings', label: '⚙️ ตั้งค่า' },
         ].map(t => (
           <button
@@ -690,6 +698,12 @@ const Admin = ({ setIsAuthenticated }) => {
             value={businessInfo.messenger_url}
             onChange={e => setBusinessInfo({ ...businessInfo, messenger_url: e.target.value })}
           />
+          <input
+            type="text"
+            placeholder="Facebook URL (เช่น https://www.facebook.com/bsbuild — ปุ่ม Facebook จะโผล่เมื่อมีค่า)"
+            value={businessInfo.facebook}
+            onChange={e => setBusinessInfo({ ...businessInfo, facebook: e.target.value })}
+          />
           <button type="submit" className="btn btn-solid">Save Business Info</button>
         </form>
       </section>
@@ -697,9 +711,83 @@ const Admin = ({ setIsAuthenticated }) => {
       <section className="admin-section" style={{ display: activeTab === 'projects' ? 'block' : 'none' }}>
         <h2>Manage Featured Projects</h2>
 
+        {/* Expanded Image Viewer (Lightbox) – use display:none to avoid unmount/remount cycles */}
+        {(() => {
+          const expandedImg = expandedImageId && managingImagesForProject ?
+            projectProcessImages.find(img => img.id === expandedImageId) : null;
+          return (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              display: expandedImg ? 'flex' : 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '1rem'
+            }}>
+              <div style={{
+                background: '#fff',
+                borderRadius: 12,
+                padding: '1.5rem',
+                maxWidth: '90%',
+                maxHeight: '90vh',
+                overflow: 'auto',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+                textAlign: 'center',
+                position: 'relative'
+              }}>
+                <button onClick={() => setExpandedImageId(null)} style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: '#e53e3e',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}>✕</button>
+                {expandedImg && (
+                  <>
+                    <img
+                      src={`${API}${expandedImg.img_path}`}
+                      alt="Expanded"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '70vh',
+                        objectFit: 'contain',
+                        marginBottom: '1rem',
+                        borderRadius: 8
+                      }}
+                    />
+                    {expandedImg.caption && (
+                      <p style={{
+                        fontSize: '1rem',
+                        color: '#333',
+                        margin: '1rem 0 0',
+                        fontWeight: 500,
+                        wordBreak: 'break-word'
+                      }}>
+                        {expandedImg.caption}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Manage Process Images Modal */}
         {managingImagesForProject && (
-          <div style={{ background: '#f0f4ff', border: '2px solid #4a6fa5', borderRadius: 10, padding: '1.5rem', marginBottom: '1.5rem' }}>
+          <div key={`process-images-${managingImagesForProject.id}`} style={{ background: '#f0f4ff', border: '2px solid #4a6fa5', borderRadius: 10, padding: '1.5rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ margin: 0 }}>📸 ภาพระหว่างดำเนินการ: {managingImagesForProject.title}</h3>
               <button onClick={() => setManagingImagesForProject(null)} style={{ background: '#ccc', border: 'none', borderRadius: 6, padding: '0.4rem 0.8rem', cursor: 'pointer' }}>✕ ปิด</button>
@@ -711,13 +799,83 @@ const Admin = ({ setIsAuthenticated }) => {
               <button type="submit" className="btn btn-solid" style={{ padding: '0.4rem 1rem' }}>+ เพิ่มรูป</button>
             </form>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '1rem' }}>
               {projectProcessImages.length === 0 && <p style={{ color: '#888' }}>ยังไม่มีรูปภาพระหว่างดำเนินการ</p>}
               {projectProcessImages.map(img => (
-                <div key={img.id} style={{ position: 'relative', textAlign: 'center' }}>
-                  <img src={`${API}${img.img_path}`} alt={img.caption} style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 6 }} />
-                  {img.caption && <p style={{ fontSize: '0.75rem', margin: '0.25rem 0', color: '#555' }}>{img.caption}</p>}
-                  <button onClick={() => handleDeleteProcessImage(img.id)} style={{ background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 4, padding: '0.2rem 0.5rem', cursor: 'pointer', fontSize: '0.75rem' }}>ลบ</button>
+                <div
+                  key={img.id}
+                  style={{
+                    position: 'relative',
+                    textAlign: 'center',
+                    border: '2px solid #ddd',
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    padding: '0.5rem',
+                    background: '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: hoveredImageId === img.id ? '0 4px 12px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
+                    transform: hoveredImageId === img.id ? 'translateY(-2px)' : 'translateY(0)'
+                  }}
+                  onMouseEnter={() => setHoveredImageId(img.id)}
+                  onMouseLeave={() => setHoveredImageId(null)}
+                  onClick={() => setExpandedImageId(img.id)}
+                >
+                  <img
+                    src={`${API}${img.img_path}`}
+                    alt={img.caption}
+                    style={{
+                      width: '100%',
+                      height: 120,
+                      objectFit: 'cover',
+                      borderRadius: 4,
+                      marginBottom: '0.5rem',
+                      display: 'block'
+                    }}
+                  />
+                  <div style={{ minHeight: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    {img.caption ? (
+                      <p style={{
+                        fontSize: '0.8rem',
+                        margin: '0.25rem 0',
+                        color: '#555',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        flex: 1
+                      }}>
+                        {img.caption}
+                      </p>
+                    ) : (
+                      <p style={{ fontSize: '0.8rem', margin: '0.25rem 0', color: '#aaa', fontStyle: 'italic' }}>
+                        ไม่มีคำอธิบาย
+                      </p>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProcessImage(img.id);
+                      }}
+                      style={{
+                        background: hoveredDeleteBtnId === img.id ? '#dc2626' : '#e53e3e',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 4,
+                        padding: '0.25rem 0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        marginTop: '0.25rem',
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseEnter={() => setHoveredDeleteBtnId(img.id)}
+                      onMouseLeave={() => setHoveredDeleteBtnId(null)}
+                    >
+                      🗑️ ลบ
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -937,7 +1095,7 @@ const Admin = ({ setIsAuthenticated }) => {
                 <td>{ref.category}</td>
                 <td>{ref.sort_order}</td>
                 <td>
-                  <input type="checkbox" checked={!!ref.is_visible} onChange={() => handleToggleRefVisible(ref)} />
+                  <ToggleSwitch checked={!!ref.is_visible} onChange={() => handleToggleRefVisible(ref)} />
                 </td>
                 <td>
                   <button className="btn-edit" onClick={() => handleEditReference(ref)}>แก้ไข</button>
@@ -1017,7 +1175,7 @@ const Admin = ({ setIsAuthenticated }) => {
               style={{ display: 'block', marginTop: '0.4rem', marginBottom: '0.75rem' }}
             />
             {heroBgFile && (
-              <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 6, padding: '0.6rem 0.85rem', marginBottom: '0.85rem', fontSize: '0.85rem' }}>
+              <div key="hero-bg-preview" style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 6, padding: '0.6rem 0.85rem', marginBottom: '0.85rem', fontSize: '0.85rem' }}>
                 <span style={{
                   background: heroBgFile.type.startsWith('video/') ? '#4a6fa5' : '#f59e0b',
                   color: '#fff', padding: '0.1rem 0.5rem', borderRadius: 10, fontSize: '0.7rem', fontWeight: 600, marginRight: '0.5rem'
@@ -1045,25 +1203,41 @@ const Admin = ({ setIsAuthenticated }) => {
         </div>
       </section>
 
-      {/* ─── Notification Settings (server-only; hidden on serverless host) ─── */}
-      <section className="admin-section" style={{ display: 'none' }}>
+      {/* ─── Notification Settings ─── */}
+      <section className="admin-section" style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}>
         <h2>🔔 Notification Settings</h2>
         <p style={{ color: '#888', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          ตั้งค่าช่องทางแจ้งเตือนเมื่อลูกค้ากรอกข้อมูล — เปิดใช้งานและกด <strong>ทดสอบ</strong> เพื่อตรวจสอบ
+          แจ้งเตือนผ่าน Email + LINE + Messenger เมื่อมีลูกค้ากรอกฟอร์มขอใบเสนอราคา — ทำงาน 24 ชม. ไม่ต้องเปิดคอม
         </p>
 
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
+        <div style={{ background: '#fff8e1', border: '1.5px solid #ffd54f', borderRadius: 10, padding: '1.25rem 1.5rem', marginBottom: '1.5rem', lineHeight: 1.7 }}>
+          <p style={{ margin: '0 0 0.75rem', fontWeight: 600, color: '#7a5c00' }}>🔐 ตั้งค่า Token ที่ Google Apps Script (ไม่ใช่ที่นี่)</p>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#555' }}>
+            Token ของ LINE/Messenger เป็นความลับ จึงเก็บไว้ฝั่งเซิร์ฟเวอร์ (Apps Script) เพื่อความปลอดภัย —
+            ไม่เก็บในหน้าเว็บที่เปิดสาธารณะ
+          </p>
+          <ol style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', fontSize: '0.9rem', color: '#444' }}>
+            <li>เปิด <a href="https://script.google.com" target="_blank" rel="noreferrer" style={{ color: '#4a6fa5' }}>script.google.com</a> → โปรเจกต์เดิม (ตัวที่ส่ง email อยู่)</li>
+            <li>วางโค้ดจากไฟล์ <code>apps-script/Code.gs</code> ในโปรเจกต์ แล้วกรอก CONFIG ด้านบนสุด</li>
+            <li>ทดสอบด้วยฟังก์ชัน <code>runTest</code> → Deploy เวอร์ชันใหม่</li>
+          </ol>
+          <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: '#777' }}>
+            📄 รายละเอียดทั้งหมดอยู่ใน <code>apps-script/README.md</code>
+          </p>
+        </div>
+
+        <div style={{ display: 'none' }}>
 
           {/* EMAIL */}
           <div style={{ border: '1.5px solid #e0e0e0', borderRadius: 10, padding: '1.25rem', background: notifSettings.email?.enabled ? '#f0fff4' : '#fafafa' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: '1.4rem' }}>📧</span>
               <h3 style={{ margin: 0, fontSize: '1rem' }}>Email (Gmail)</h3>
-              <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={!!notifSettings.email?.enabled}
-                  onChange={e => setNotifSettings(prev => ({ ...prev, email: { ...prev.email, enabled: e.target.checked } }))} />
-                <span style={{ fontSize: '0.85rem' }}>เปิดใช้งาน</span>
-              </label>
+              <ToggleSwitch
+                checked={!!notifSettings.email?.enabled}
+                onChange={checked => setNotifSettings(prev => ({ ...prev, email: { ...prev.email, enabled: checked } }))}
+                label="เปิดใช้งาน"
+              />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div><label style={{ fontSize: '0.8rem', color: '#555' }}>Gmail Account (ผู้ส่ง)</label>
@@ -1078,11 +1252,13 @@ const Admin = ({ setIsAuthenticated }) => {
               <button className="btn-secondary" onClick={() => handleTestNotif('email')} disabled={notifTesting.email}>
                 {notifTesting.email ? '⏳ กำลังส่ง...' : '📤 ทดสอบ'}
               </button>
-              {notifTestResult.email && (
-                <span style={{ fontSize: '0.85rem', color: notifTestResult.email.ok ? 'green' : 'red' }}>
-                  {notifTestResult.email.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.email.error}`}
-                </span>
-              )}
+              <div style={{ minHeight: '1.2rem', display: 'flex', alignItems: 'center' }}>
+                {notifTestResult.email && (
+                  <span style={{ fontSize: '0.85rem', color: notifTestResult.email.ok ? 'green' : 'red' }}>
+                    {notifTestResult.email.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.email.error}`}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1091,11 +1267,11 @@ const Admin = ({ setIsAuthenticated }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: '1.4rem' }}>💬</span>
               <h3 style={{ margin: 0, fontSize: '1rem' }}>LINE Official Account</h3>
-              <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={!!notifSettings.line?.enabled}
-                  onChange={e => setNotifSettings(prev => ({ ...prev, line: { ...prev.line, enabled: e.target.checked } }))} />
-                <span style={{ fontSize: '0.85rem' }}>เปิดใช้งาน</span>
-              </label>
+              <ToggleSwitch
+                checked={!!notifSettings.line?.enabled}
+                onChange={checked => setNotifSettings(prev => ({ ...prev, line: { ...prev.line, enabled: checked } }))}
+                label="เปิดใช้งาน"
+              />
             </div>
             <div style={{ background: '#e8f4fd', borderRadius: 6, padding: '0.6rem 0.85rem', fontSize: '0.8rem', color: '#444', marginBottom: '0.85rem' }}>
               📌 <strong>วิธีรับค่า:</strong> ไปที่ <a href="https://developers.line.biz/console/" target="_blank" rel="noreferrer" style={{ color: '#06c755' }}>LINE Developers Console</a> → เลือก Channel → Messaging API → Channel Access Token (Long-lived) | Admin User ID: ส่งข้อความหา Bot แล้วดูใน webhook log
@@ -1111,11 +1287,13 @@ const Admin = ({ setIsAuthenticated }) => {
               <button className="btn-secondary" onClick={() => handleTestNotif('line')} disabled={notifTesting.line}>
                 {notifTesting.line ? '⏳ กำลังส่ง...' : '📤 ทดสอบ'}
               </button>
-              {notifTestResult.line && (
-                <span style={{ fontSize: '0.85rem', color: notifTestResult.line.ok ? 'green' : 'red' }}>
-                  {notifTestResult.line.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.line.error}`}
-                </span>
-              )}
+              <div style={{ minHeight: '1.2rem', display: 'flex', alignItems: 'center' }}>
+                {notifTestResult.line && (
+                  <span style={{ fontSize: '0.85rem', color: notifTestResult.line.ok ? 'green' : 'red' }}>
+                    {notifTestResult.line.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.line.error}`}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1124,11 +1302,11 @@ const Admin = ({ setIsAuthenticated }) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
               <span style={{ fontSize: '1.4rem' }}>📘</span>
               <h3 style={{ margin: 0, fontSize: '1rem' }}>Facebook Messenger</h3>
-              <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={!!notifSettings.facebook?.enabled}
-                  onChange={e => setNotifSettings(prev => ({ ...prev, facebook: { ...prev.facebook, enabled: e.target.checked } }))} />
-                <span style={{ fontSize: '0.85rem' }}>เปิดใช้งาน</span>
-              </label>
+              <ToggleSwitch
+                checked={!!notifSettings.facebook?.enabled}
+                onChange={checked => setNotifSettings(prev => ({ ...prev, facebook: { ...prev.facebook, enabled: checked } }))}
+                label="เปิดใช้งาน"
+              />
             </div>
             <div style={{ background: '#e8f0fe', borderRadius: 6, padding: '0.6rem 0.85rem', fontSize: '0.8rem', color: '#444', marginBottom: '0.85rem' }}>
               📌 <strong>วิธีรับค่า:</strong> ไปที่ <a href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer" style={{ color: '#1877f2' }}>Facebook Developers</a> → สร้าง App → Messenger → Page Access Token | Admin PSID: ส่งข้อความหา Page แล้วดู PSID จาก webhook
@@ -1144,11 +1322,13 @@ const Admin = ({ setIsAuthenticated }) => {
               <button className="btn-secondary" onClick={() => handleTestNotif('facebook')} disabled={notifTesting.facebook}>
                 {notifTesting.facebook ? '⏳ กำลังส่ง...' : '📤 ทดสอบ'}
               </button>
-              {notifTestResult.facebook && (
-                <span style={{ fontSize: '0.85rem', color: notifTestResult.facebook.ok ? 'green' : 'red' }}>
-                  {notifTestResult.facebook.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.facebook.error}`}
-                </span>
-              )}
+              <div style={{ minHeight: '1.2rem', display: 'flex', alignItems: 'center' }}>
+                {notifTestResult.facebook && (
+                  <span style={{ fontSize: '0.85rem', color: notifTestResult.facebook.ok ? 'green' : 'red' }}>
+                    {notifTestResult.facebook.ok ? '✅ ส่งสำเร็จ!' : `❌ ${notifTestResult.facebook.error}`}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1192,14 +1372,11 @@ const Admin = ({ setIsAuthenticated }) => {
             <option value="4">4 Stars</option>
             <option value="5">5 Stars</option>
           </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0' }}>
-            <input
-              type="checkbox"
-              checked={reviewVisible}
-              onChange={e => setReviewVisible(e.target.checked)}
-            />
-            Visible on website
-          </label>
+          <ToggleSwitch
+            checked={reviewVisible}
+            onChange={checked => setReviewVisible(checked)}
+            label="Visible on website"
+          />
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button type="submit" className="btn btn-solid">
               {editingReviewId ? 'Update Review' : 'Add Review'}
@@ -1304,7 +1481,7 @@ const Admin = ({ setIsAuthenticated }) => {
         </div>
 
         {editingContentId && (
-          <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f5f5f5', borderRadius: '8px' }}>
+          <div key={`content-editor-${editingContentId}`} style={{ marginTop: '2rem', padding: '1.5rem', background: '#f5f5f5', borderRadius: '8px' }}>
             <h3>Editing: {contentName}</h3>
             <textarea
               style={{ width: '100%', padding: '1rem', minHeight: '150px', fontFamily: 'inherit' }}
@@ -1418,6 +1595,13 @@ const Admin = ({ setIsAuthenticated }) => {
               type="text"
               value={websiteSettings.satisfaction_percent || ''}
               onChange={e => setWebsiteSettings({ ...websiteSettings, satisfaction_percent: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <ToggleSwitch
+              checked={websiteSettings.show_about_stats !== false}
+              onChange={checked => setWebsiteSettings({ ...websiteSettings, show_about_stats: checked })}
+              label="Show About Us Stats (300+, 30+, 95%)"
             />
           </div>
           <button type="submit" className="btn btn-solid">Save Settings</button>
