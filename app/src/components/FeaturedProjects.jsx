@@ -129,13 +129,12 @@ const FeaturedProjects = () => {
     >
       <div className="project-img-wrapper">
         <img src={getImgSrc(project.img)} alt={project.title} className="project-img" decoding="async" />
-        <div className="project-overlay">
-          <span className="project-btn">ดูรายละเอียด</span>
+        <div className="project-shade" />
+        <div className="project-caption">
+          <span className="project-cat">{CATEGORY_LABELS[project.category] || 'รีโนเวท'}</span>
+          <h3 className="project-title">{project.title}</h3>
+          <span className="project-btn">ดูรายละเอียด <em>→</em></span>
         </div>
-      </div>
-      <div className="project-info">
-        <span className="project-cat">{CATEGORY_LABELS[project.category] || 'รีโนเวท'}</span>
-        <h3 className="project-title">{project.title}</h3>
       </div>
     </article>
   );
