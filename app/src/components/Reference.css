@@ -268,7 +268,7 @@
   margin-left: -50vw;
   margin-right: -50vw;
   padding: 0;
-  overflow-x: auto;
+  overflow: hidden;
   scrollbar-width: none;
   border-radius: 0;
 }
@@ -276,17 +276,18 @@
 
 .ref-acc-panel {
   position: relative;
-  flex: 0 0 80px;
+  flex: 1 1 0%;
+  min-width: 0;
   border-radius: 0;
   overflow: hidden;
   cursor: pointer;
   background-size: cover;
   background-position: center;
-  transition: flex-basis 0.85s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, filter 0.5s ease;
+  transition: flex-grow 0.85s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, filter 0.5s ease;
   filter: brightness(0.82) saturate(0.95);
 }
 .ref-acc-panel.active {
-  flex: 0 0 min(720px, 78vw);
+  flex-grow: 8;
   z-index: 2;
   filter: brightness(1) saturate(1.05);
   /* luxury layered drop shadow on the opened image */
