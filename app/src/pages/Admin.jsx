@@ -218,7 +218,7 @@ const Admin = ({ setIsAuthenticated }) => {
     e.preventDefault();
     try {
       const payload = {
-        title: refTitle,
+        title: refRoomType,
         category: refCategory,
         sort_order: parseInt(refSortOrder) || 0,
         room_type: refRoomType,
@@ -1116,8 +1116,8 @@ const Admin = ({ setIsAuthenticated }) => {
           <h3>{editingRefId ? 'แก้ไขรูป Reference' : 'เพิ่มรูป Reference ใหม่'}</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label>ชื่อ / คำอธิบาย *</label>
-              <input value={refTitle} onChange={e => setRefTitle(e.target.value)} placeholder="เช่น ห้องนั่งเล่นสไตล์โมเดิร์น" required />
+              <label>ประเภทห้อง *</label>
+              <input value={refRoomType} onChange={e => setRefRoomType(e.target.value)} placeholder="เช่น ห้องนอน, ห้องครัว, ห้องนั่งเล่น" required />
             </div>
             <div>
               <label>หมวดหมู่</label>
@@ -1134,11 +1134,7 @@ const Admin = ({ setIsAuthenticated }) => {
               <input type="number" value={refSortOrder} onChange={e => setRefSortOrder(e.target.value)} />
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '0.75rem' }}>
-            <div>
-              <label>ประเภทห้อง</label>
-              <input value={refRoomType} onChange={e => setRefRoomType(e.target.value)} placeholder="เช่น ห้องนอน, ห้องครัว" />
-            </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.75rem' }}>
             <div>
               <label>Style (สไตล์)</label>
               <input value={refStyle} onChange={e => setRefStyle(e.target.value)} placeholder="เช่น Modern, Luxury, Minimal" />
