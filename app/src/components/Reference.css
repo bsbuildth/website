@@ -259,7 +259,9 @@
 .ref-accordion {
   display: flex;
   gap: 0;
-  height: 520px;
+  /* whole strip (expanded + collapsed) keeps a 16:10 ratio */
+  aspect-ratio: 16 / 10;
+  max-height: 82vh;
   /* full-bleed: break out of the centered container to span the viewport */
   width: 100vw;
   position: relative;
@@ -283,18 +285,19 @@
   cursor: pointer;
   background-size: cover;
   background-position: center;
-  transition: flex-grow 0.85s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, filter 0.5s ease;
-  filter: brightness(0.82) saturate(0.95);
+  transition: flex-grow 0.85s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease, filter 0.6s ease;
+  filter: brightness(0.68) saturate(0.88) sepia(0.06);
 }
 .ref-acc-panel.active {
   flex-grow: 8;
   z-index: 2;
-  filter: brightness(1) saturate(1.05);
-  /* luxury layered drop shadow on the opened image */
+  filter: brightness(1.02) saturate(1.08) contrast(1.03);
+  /* luxury layered drop shadow + warm gold inner glow */
   box-shadow:
-    0 34px 70px rgba(20, 17, 13, 0.55),
-    0 14px 30px rgba(20, 17, 13, 0.4),
-    inset 0 0 0 1px rgba(231, 201, 138, 0.25);
+    0 44px 95px rgba(14, 10, 5, 0.62),
+    0 18px 44px rgba(14, 10, 5, 0.45),
+    inset 0 0 0 1px rgba(231, 201, 138, 0.35),
+    inset 0 -90px 120px rgba(120, 88, 38, 0.18);
 }
 
 .ref-acc-shade {
@@ -303,7 +306,9 @@
   transition: background 0.5s ease;
 }
 .ref-acc-panel.active .ref-acc-shade {
-  background: linear-gradient(to top, rgba(20,17,13,0.8) 0%, rgba(20,17,13,0.05) 55%, rgba(20,17,13,0.15) 100%);
+  background:
+    linear-gradient(to top, rgba(16,12,7,0.9) 0%, rgba(16,12,7,0.12) 48%, transparent 72%),
+    linear-gradient(125deg, rgba(150,112,52,0.16) 0%, transparent 42%);
 }
 
 /* collapsed view: vertical title + expand (+) button */
@@ -428,7 +433,9 @@
 @media (max-width: 700px) {
   .ref-accordion {
     flex-direction: column;
+    aspect-ratio: auto;
     height: auto;
+    max-height: none;
     overflow: visible;
     gap: 0;
     padding: 0;
