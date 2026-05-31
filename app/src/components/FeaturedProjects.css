@@ -94,7 +94,6 @@
 }
 .fp-scroller::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
 .fp-scroller.dragging { cursor: grabbing; }
-.fp-scroller.dragging .fp-card { pointer-events: none; }
 
 .fp-card {
   cursor: pointer;
