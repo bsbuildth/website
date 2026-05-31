@@ -5,13 +5,14 @@ import './AboutUs.css';
 
 const AboutUs = () => {
   const [aboutContent, setAboutContent] = useState({
-    description: 'เราคือทีมผู้รับเหมาที่มีประสบการณ์ยาวนานกว่า 30 ปี มุ่งมั่นสร้างสรรค์ผลงานคุณภาพด้วยมาตรฐานสูงสุด พร้อมทีมงานผู้เชี่ยวชาญทั้งด้านวิศวกรรม สถาปัตยกรรม และการออกแบบภายใน เพื่อส่งมอบบ้านและพื้นที่ที่สมบูรณ์แบบที่สุดให้กับคุณ'
+    description: 'ด้วยประสบการณ์ในงานก่อสร้างและงานต่อเติมมากกว่า 30 ปี เราให้บริการงานต่อเติมบ้าน รีโนเวท ปรับปรุงอาคาร และงานก่อสร้างทั่วไป โดยดูแลทุกขั้นตอนตั้งแต่สำรวจหน้างาน ประเมินราคา วางแผนงาน ไปจนถึงการส่งมอบงาน\n\nเราให้ความสำคัญกับคุณภาพ ความปลอดภัย และความรับผิดชอบในทุกโครงการ พร้อมรับประกันผลงาน 1 ปี เพื่อสร้างความมั่นใจให้กับลูกค้าหลังส่งมอบงาน'
   });
   const [stats, setStats] = useState({
     projects: '500',
     team: '30',
     satisfaction: '95'
   });
+  const [showStats, setShowStats] = useState(true);
   const projectsRef = useCountUp(stats.projects, { suffix: '+' });
   const teamRef = useCountUp(stats.team, { suffix: '+' });
   const satisfactionRef = useCountUp(stats.satisfaction, { suffix: '%' });
@@ -38,6 +39,8 @@ const AboutUs = () => {
           team: settingsObj.team_count || '30',
           satisfaction: settingsObj.satisfaction_percent || '95'
         });
+
+        setShowStats(settingsObj.show_about_stats !== false);
       } catch (err) {
         console.error('Error fetching about content:', err);
       }
@@ -53,7 +56,7 @@ const AboutUs = () => {
           <p className="about-text">
             {aboutContent.description}
           </p>
-          <div className="about-stats">
+          {showStats && <div className="about-stats">
             <div className="stat-item">
               <h3 className="stat-number" ref={projectsRef}>{stats.projects}+</h3>
               <p className="stat-label">Projects</p>
@@ -67,6 +70,7 @@ const AboutUs = () => {
               <p className="stat-label">Happy Clients</p>
             </div>
           </div>
+          }
         </div>
         <div className="about-image-wrapper">
           <img src="/website/project_1.png" alt="Professional team at construction site" className="about-image" />
