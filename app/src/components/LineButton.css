@@ -16,8 +16,8 @@
 /* ─── Base button ─── */
 .float-btn {
   position: relative;
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -26,14 +26,16 @@
   border: none;
   cursor: pointer;
   color: #fff;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease,
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28), inset 0 -2px 6px rgba(0,0,0,0.12);
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease,
               opacity 0.25s ease, translate 0.3s ease;
 }
 
+.float-btn svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18)); }
+
 .float-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 22px rgba(0,0,0,0.3);
+  transform: scale(1.12) translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.32);
 }
 
 /* ─── LINE ─── */
@@ -66,28 +68,66 @@
   transition-delay: 0s;
 }
 
+/* ─── Facebook ─── */
+.float-btn--facebook {
+  background: #1877F2;
+  opacity: 0;
+  translate: 0 20px;
+  pointer-events: none;
+}
+
+.float-btn--facebook.visible {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+  transition-delay: -0.08s;
+}
+
 /* ─── Toggle (main) button ─── */
 .float-btn--toggle {
-  background: #ff4d4d;
-  width: 58px;
-  height: 58px;
-  animation: floatPulse 2.5s infinite;
-  transition: background 0.3s ease, transform 0.2s ease;
+  background: linear-gradient(135deg, #ff5e62 0%, #e53e3e 100%);
+  width: 62px;
+  height: 62px;
+  /* pulse ring + periodic attention wiggle to draw the eye */
+  animation: floatPulse 2.2s infinite, floatAttention 4.5s ease-in-out infinite;
+  transition: background 0.3s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
 }
 
 .float-btn--toggle.open {
-  background: #e53e3e;
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
   animation: none;
+  transform: rotate(90deg);
 }
 
 .float-btn--toggle:hover {
-  transform: scale(1.1);
+  transform: scale(1.12);
+  animation-play-state: paused;
 }
+.float-btn--toggle.open:hover { transform: rotate(90deg) scale(1.1); }
 
 @keyframes floatPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.6); }
-  70%  { box-shadow: 0 0 0 14px rgba(255, 77, 77, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.55); }
+  70%  { box-shadow: 0 0 0 16px rgba(229, 62, 62, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
+}
+
+/* every few seconds: a quick bounce + tilt so users notice the button */
+@keyframes floatAttention {
+  0%, 82%, 100% { transform: translateY(0) rotate(0); }
+  86%  { transform: translateY(-8px) rotate(-8deg); }
+  90%  { transform: translateY(0)    rotate(6deg); }
+  94%  { transform: translateY(-4px) rotate(-4deg); }
+  98%  { transform: translateY(0)    rotate(0); }
+}
+
+/* gentle entrance bob for the channel buttons when opened */
+.float-btn--line.visible,
+.float-btn--messenger.visible,
+.float-btn--facebook.visible { animation: floatIn 0.4s cubic-bezier(.34,1.56,.64,1); }
+
+@keyframes floatIn {
+  0%   { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 /* ─── Tooltip label ─── */
@@ -126,7 +166,7 @@
 }
 
 @media (max-width: 480px) {
-  .float-stack { bottom: 20px; right: 18px; }
-  .float-btn { width: 48px; height: 48px; }
-  .float-btn--toggle { width: 52px; height: 52px; }
+  .float-stack { bottom: 20px; right: 18px; gap: 10px; }
+  .float-btn { width: 50px; height: 50px; }
+  .float-btn--toggle { width: 56px; height: 56px; }
 }

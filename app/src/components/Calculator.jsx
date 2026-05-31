@@ -9,7 +9,17 @@ const Calculator = () => {
   const [calculatorTypes, setCalculatorTypes] = useState([]);
   const [projectTypeId, setProjectTypeId] = useState(null);
   const [area, setArea] = useState(50);
+  const [width, setWidth] = useState('');
+  const [length, setLength] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // เมื่อกรอกกว้าง×ยาว → คำนวณพื้นที่ให้อัตโนมัติ
+  const applyDimensions = (w, l) => {
+    setWidth(w);
+    setLength(l);
+    const a = Math.round((parseFloat(w) || 0) * (parseFloat(l) || 0));
+    if (a > 0) setArea(Math.min(Math.max(a, MIN_AREA), MAX_AREA));
+  };
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -66,9 +76,9 @@ const Calculator = () => {
       <div className="container" data-aos="fade-up">
         <div className="calc-wrapper">
           <div className="calc-info">
-            <p className="eyebrow">Budget Estimator</p>
+            <p className="eyebrow">ประเมินราคาฟรี</p>
             <h2 className="section-title text-left">ประเมินงบเบื้องต้น</h2>
-            <p className="text-muted">เลือกประเภทงานและเลื่อนปรับขนาดพื้นที่ ระบบจะคำนวณช่วงงบประมาณให้ทันที — ไม่ต้องกรอกฟอร์ม ไม่ต้องรอ</p>
+            <p className="text-muted">เลือกประเภทงานและพื้นที่ เพื่อรับประเมินราคาและสำรวจหน้างานฟรี ในพื้นที่กรุงเทพมหานครและปริมณฑล</p>
             <ul className="text-muted">
               <li>✓ คำนวณสดแบบ Real-time</li>
               <li>✓ อ้างอิงฐานข้อมูลวัสดุปี 2026</li>
@@ -79,7 +89,7 @@ const Calculator = () => {
             <div className="calculator-form">
               {/* Type chips */}
               <div className="calc-form-group">
-                <label>ประเภทงานที่ต้องการ</label>
+                <label>ประเภทงาน</label>
                 <div className="calc-chips" role="radiogroup" aria-label="ประเภทงาน">
                   {calculatorTypes.map(type => (
                     <button
@@ -96,10 +106,39 @@ const Calculator = () => {
                 </div>
               </div>
 
+              {/* Width × Length → area */}
+              <div className="calc-form-group">
+                <label>กว้าง × ยาว (เมตร)</label>
+                <div className="calc-dim-row">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    className="calc-dim-input"
+                    placeholder="กว้าง"
+                    value={width}
+                    onChange={e => applyDimensions(e.target.value, length)}
+                    aria-label="ความกว้าง (เมตร)"
+                  />
+                  <span className="calc-dim-x">×</span>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min="0"
+                    className="calc-dim-input"
+                    placeholder="ยาว"
+                    value={length}
+                    onChange={e => applyDimensions(width, e.target.value)}
+                    aria-label="ความยาว (เมตร)"
+                  />
+                  <span className="calc-dim-eq">= {area} ตร.ม.</span>
+                </div>
+              </div>
+
               {/* Area slider */}
               <div className="calc-form-group">
                 <label>
-                  ขนาดพื้นที่
+                  ปรับพื้นที่
                   <span className="calc-area-value">{area} <small>ตร.ม.</small></span>
                 </label>
                 <input
@@ -109,7 +148,7 @@ const Calculator = () => {
                   max={MAX_AREA}
                   step="5"
                   value={area}
-                  onChange={e => setArea(Number(e.target.value))}
+                  onChange={e => { setArea(Number(e.target.value)); setWidth(''); setLength(''); }}
                   style={{ '--pct': `${pct}%` }}
                   aria-label="ขนาดพื้นที่ (ตารางเมตร)"
                 />
@@ -129,7 +168,7 @@ const Calculator = () => {
                   <span className="price-max">{fmt(estimate.max)}</span>
                 </div>
                 <p className="disclaimer">*ราคาประเมินเบื้องต้น อาจเปลี่ยนแปลงตามหน้างานจริง</p>
-                <a href="#contact" className="btn btn-solid calc-cta">ขอใบเสนอราคาฟรี →</a>
+                <a href="#contact" className="btn btn-solid calc-cta">ขอใบเสนอราคา →</a>
               </div>
             )}
           </div>

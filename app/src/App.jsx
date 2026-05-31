@@ -16,24 +16,42 @@ import Reference from './components/Reference';
 import LineButton from './components/LineButton';
 import Admin from './pages/Admin';
 import AdminLogin from './pages/AdminLogin';
+import { getSettings } from './firebase/api';
 
-const MainSite = () => (
-  <>
-    <Header />
-    <main>
-      <Hero />
-      <BeforeAfter />
-      <FeaturedProjects />
-      <Reference />
-      <Calculator />
-      <AboutUs />
-      <Services />
-      <Testimonials />
-      <Footer />
-    </main>
-    <LineButton />
-  </>
-);
+const MainSite = () => {
+  const [show, setShow] = useState({});
+
+  useEffect(() => {
+    getSettings()
+      .then(data => {
+        const obj = {};
+        data.forEach(s => { obj[s.setting_key] = s.setting_value; });
+        setShow(obj);
+      })
+      .catch(err => console.error('Error fetching section settings:', err));
+  }, []);
+
+  // default visible: only hide when the flag is explicitly false
+  const on = (key) => show[key] !== false;
+
+  return (
+    <>
+      <Header />
+      <main>
+        {on('show_hero') && <Hero />}
+        {on('show_beforeafter') && <BeforeAfter />}
+        {on('show_projects') && <FeaturedProjects />}
+        {on('show_reference') && <Reference />}
+        {on('show_calculator') && <Calculator />}
+        {on('show_about') && <AboutUs />}
+        {on('show_services') && <Services />}
+        {on('show_reviews') && <Testimonials />}
+        <Footer />
+      </main>
+      <LineButton />
+    </>
+  );
+};
 
 const ProtectedRoute = ({ isAuthenticated, element }) => {
   return isAuthenticated ? element : <Navigate to="/admin/login" replace />;

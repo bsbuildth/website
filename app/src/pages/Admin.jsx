@@ -68,7 +68,14 @@ const Admin = ({ setIsAuthenticated }) => {
     team_count: '30',
     satisfaction_percent: '95',
     show_about_stats: true,
-    show_reviews: true
+    show_reviews: true,
+    show_hero: true,
+    show_beforeafter: true,
+    show_projects: true,
+    show_reference: true,
+    show_calculator: true,
+    show_about: true,
+    show_services: true
   });
   const [heroBgImage, setHeroBgImage] = useState(null);
   const [heroBgFile, setHeroBgFile] = useState(null);
@@ -613,14 +620,13 @@ const Admin = ({ setIsAuthenticated }) => {
         await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] || '' });
       }
       // boolean settings — must persist false too (don't gate behind a truthy check)
-      await setItem('settings', 'show_about_stats', {
-        setting_key: 'show_about_stats',
-        setting_value: websiteSettings.show_about_stats !== false,
-      });
-      await setItem('settings', 'show_reviews', {
-        setting_key: 'show_reviews',
-        setting_value: websiteSettings.show_reviews !== false,
-      });
+      const boolKeys = [
+        'show_about_stats', 'show_reviews', 'show_hero', 'show_beforeafter',
+        'show_projects', 'show_reference', 'show_calculator', 'show_about', 'show_services',
+      ];
+      for (const key of boolKeys) {
+        await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] !== false });
+      }
       alert('Settings saved successfully!');
     } catch (err) {
       console.error(err);
@@ -1617,13 +1623,26 @@ const Admin = ({ setIsAuthenticated }) => {
               label="Show About Us Stats (300+, 30+, 95%)"
             />
           </div>
-          <div className="form-group">
-            <ToggleSwitch
-              checked={websiteSettings.show_reviews !== false}
-              onChange={checked => setWebsiteSettings({ ...websiteSettings, show_reviews: checked })}
-              label="Show Reviews Section (Client Reviews)"
-            />
-          </div>
+          <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+          <h3 style={{ margin: '0 0 1rem', fontSize: '1rem' }}>เปิด/ปิดแต่ละส่วนของหน้าเว็บ</h3>
+          {[
+            { key: 'show_hero', label: 'Hero (แบนเนอร์บนสุด)' },
+            { key: 'show_beforeafter', label: 'Before / After (ก่อน-หลัง)' },
+            { key: 'show_projects', label: 'ผลงานที่ผ่านมา (Featured Projects)' },
+            { key: 'show_reference', label: 'รูปอ้างอิง (Reference)' },
+            { key: 'show_calculator', label: 'ประเมินงบเบื้องต้น (Calculator)' },
+            { key: 'show_about', label: 'เกี่ยวกับเรา (About Us)' },
+            { key: 'show_services', label: 'บริการ (Services)' },
+            { key: 'show_reviews', label: 'รีวิวลูกค้า (Client Reviews)' },
+          ].map(s => (
+            <div className="form-group" key={s.key}>
+              <ToggleSwitch
+                checked={websiteSettings[s.key] !== false}
+                onChange={checked => setWebsiteSettings({ ...websiteSettings, [s.key]: checked })}
+                label={s.label}
+              />
+            </div>
+          ))}
           <button type="submit" className="btn btn-solid">Save Settings</button>
         </form>
       </section>
