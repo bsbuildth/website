@@ -604,10 +604,13 @@ const Admin = ({ setIsAuthenticated }) => {
     try {
       const keys = ['projects_count', 'team_count', 'satisfaction_percent'];
       for (const key of keys) {
-        if (websiteSettings[key]) {
-          await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] });
-        }
+        await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] || '' });
       }
+      // boolean setting — must persist false too (don't gate behind a truthy check)
+      await setItem('settings', 'show_about_stats', {
+        setting_key: 'show_about_stats',
+        setting_value: websiteSettings.show_about_stats !== false,
+      });
       alert('Settings saved successfully!');
     } catch (err) {
       console.error(err);
