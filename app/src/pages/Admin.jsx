@@ -75,7 +75,10 @@ const Admin = ({ setIsAuthenticated }) => {
     show_reference: true,
     show_calculator: true,
     show_about: true,
-    show_services: true
+    show_services: true,
+    notif_email: true,
+    notif_line: true,
+    notif_messenger: true
   });
   const [heroBgImage, setHeroBgImage] = useState(null);
   const [heroBgFile, setHeroBgFile] = useState(null);
@@ -184,6 +187,19 @@ const Admin = ({ setIsAuthenticated }) => {
   const fetchNotifSettings = () => {};
   const handleSaveNotif = async () => {};
   const handleTestNotif = async () => {};
+
+  // Save per-channel enable flags (read by the website + passed to Apps Script)
+  const handleSaveNotifEnable = async () => {
+    try {
+      for (const key of ['notif_email', 'notif_line', 'notif_messenger']) {
+        await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] !== false });
+      }
+      alert('บันทึกการตั้งค่าแจ้งเตือนแล้ว!');
+    } catch (err) {
+      console.error(err);
+      alert('❌ ' + err.message);
+    }
+  };
 
   const updateNotifConfig = (channel, field, value) => {
     setNotifSettings(prev => ({
@@ -1243,6 +1259,30 @@ const Admin = ({ setIsAuthenticated }) => {
           <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: '#777' }}>
             📄 รายละเอียดทั้งหมดอยู่ใน <code>apps-script/README.md</code>
           </p>
+        </div>
+
+        {/* Per-channel enable/disable (controls which channels actually send) */}
+        <div style={{ border: '1.5px solid #e0e0e0', borderRadius: 10, padding: '1.5rem', maxWidth: 480 }}>
+          <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>เปิด/ปิดช่องทางแจ้งเตือน</h3>
+          <p style={{ margin: '0 0 1.25rem', fontSize: '0.85rem', color: '#888' }}>
+            ปิดช่องไหน ระบบจะไม่ส่งแจ้งเตือนช่องนั้นเมื่อมีลูกค้ากรอกฟอร์ม (token ยังอยู่ครบ ไม่ต้องกรอกใหม่)
+          </p>
+          {[
+            { key: 'notif_email', label: '📧 Email' },
+            { key: 'notif_line', label: '💬 LINE' },
+            { key: 'notif_messenger', label: '📘 Messenger' },
+          ].map(c => (
+            <div key={c.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid #f0f0f0' }}>
+              <span style={{ fontSize: '0.95rem' }}>{c.label}</span>
+              <ToggleSwitch
+                checked={websiteSettings[c.key] !== false}
+                onChange={checked => setWebsiteSettings({ ...websiteSettings, [c.key]: checked })}
+              />
+            </div>
+          ))}
+          <button className="btn btn-solid" style={{ marginTop: '1.25rem' }} onClick={handleSaveNotifEnable}>
+            💾 บันทึกการตั้งค่าแจ้งเตือน
+          </button>
         </div>
 
         <div style={{ display: 'none' }}>

@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { getCalculatorTypes, getBusinessInfo, submitContact } from '../firebase/api';
+import { getCalculatorTypes, getBusinessInfo, submitContact, getSettings } from '../firebase/api';
 import './Footer.css';
 
 const Footer = () => {
@@ -18,19 +18,30 @@ const Footer = () => {
     line_id: '@bsbuild',
     address: 'กรุงเทพมหานคร'
   });
+  // per-channel notification toggles (admin-controlled, default all on)
+  const [notifEnable, setNotifEnable] = useState({ email: true, line: true, messenger: true });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [types, info] = await Promise.all([
+        const [types, info, settings] = await Promise.all([
           getCalculatorTypes(),
-          getBusinessInfo()
+          getBusinessInfo(),
+          getSettings()
         ]);
 
         setCalculatorTypes(types);
         if (types.length > 0 && !formData.serviceType) {
           setFormData(prev => ({ ...prev, serviceType: types[0].type_name }));
         }
+
+        const s = {};
+        (settings || []).forEach(x => { s[x.setting_key] = x.setting_value; });
+        setNotifEnable({
+          email: s.notif_email !== false,
+          line: s.notif_line !== false,
+          messenger: s.notif_messenger !== false,
+        });
 
         if (info) {
           setBusinessInfo({
@@ -86,7 +97,8 @@ const Footer = () => {
           contactInfo: formData.contactInfo,
           email: formData.email,
           serviceType: formData.serviceType,
-          message: formData.message
+          message: formData.message,
+          notify: notifEnable
         })
       }).catch(err => console.error('Apps Script notify error:', err));
     }
