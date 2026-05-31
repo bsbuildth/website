@@ -67,7 +67,8 @@ const Admin = ({ setIsAuthenticated }) => {
     projects_count: '500',
     team_count: '30',
     satisfaction_percent: '95',
-    show_about_stats: true
+    show_about_stats: true,
+    show_reviews: true
   });
   const [heroBgImage, setHeroBgImage] = useState(null);
   const [heroBgFile, setHeroBgFile] = useState(null);
@@ -611,10 +612,14 @@ const Admin = ({ setIsAuthenticated }) => {
       for (const key of keys) {
         await setItem('settings', key, { setting_key: key, setting_value: websiteSettings[key] || '' });
       }
-      // boolean setting — must persist false too (don't gate behind a truthy check)
+      // boolean settings — must persist false too (don't gate behind a truthy check)
       await setItem('settings', 'show_about_stats', {
         setting_key: 'show_about_stats',
         setting_value: websiteSettings.show_about_stats !== false,
+      });
+      await setItem('settings', 'show_reviews', {
+        setting_key: 'show_reviews',
+        setting_value: websiteSettings.show_reviews !== false,
       });
       alert('Settings saved successfully!');
     } catch (err) {
@@ -1610,6 +1615,13 @@ const Admin = ({ setIsAuthenticated }) => {
               checked={websiteSettings.show_about_stats !== false}
               onChange={checked => setWebsiteSettings({ ...websiteSettings, show_about_stats: checked })}
               label="Show About Us Stats (300+, 30+, 95%)"
+            />
+          </div>
+          <div className="form-group">
+            <ToggleSwitch
+              checked={websiteSettings.show_reviews !== false}
+              onChange={checked => setWebsiteSettings({ ...websiteSettings, show_reviews: checked })}
+              label="Show Reviews Section (Client Reviews)"
             />
           </div>
           <button type="submit" className="btn btn-solid">Save Settings</button>

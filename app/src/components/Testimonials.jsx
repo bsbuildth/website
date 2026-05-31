@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MarqueeLib from 'react-fast-marquee';
-import { getReviews } from '../firebase/api';
+import { getReviews, getSettings } from '../firebase/api';
 import './Testimonials.css';
 
 // Handle ESM export issue in v1.6.5
@@ -9,6 +9,7 @@ const Marquee = MarqueeLib?.default || MarqueeLib;
 const Testimonials = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showSection, setShowSection] = useState(true);
 
   useEffect(() => {
     getReviews()
@@ -20,7 +21,17 @@ const Testimonials = () => {
         console.error('Failed to fetch reviews:', err);
         setLoading(false);
       });
+
+    getSettings()
+      .then(data => {
+        const obj = {};
+        data.forEach(s => { obj[s.setting_key] = s.setting_value; });
+        setShowSection(obj.show_reviews !== false);
+      })
+      .catch(err => console.error('Failed to fetch settings:', err));
   }, []);
+
+  if (!showSection) return null;
 
   return (
     <section className="testimonials section" id="reviews">
