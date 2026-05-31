@@ -226,6 +226,11 @@ const Admin = ({ setIsAuthenticated }) => {
     fetchReferences();
   };
 
+  const handleToggleReviewVisible = async (review) => {
+    await updateItem('reviews', review.id, { is_visible: review.is_visible === 1 ? 0 : 1 });
+    fetchReviews();
+  };
+
   const fetchProjects = () => {
     getProjects().then(data => setProjects(data)).catch(err => console.error(err));
   };
@@ -1413,7 +1418,7 @@ const Admin = ({ setIsAuthenticated }) => {
                   <td>{r.role}</td>
                   <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.text}</td>
                   <td>{'★'.repeat(r.stars)}</td>
-                  <td>{r.is_visible === 1 ? '✓' : '✗'}</td>
+                  <td><ToggleSwitch checked={r.is_visible === 1} onChange={() => handleToggleReviewVisible(r)} /></td>
                   <td>
                     <button onClick={() => handleEditReview(r)} className="btn-edit" style={{ marginRight: '0.5rem' }}>Edit</button>
                     <button onClick={() => handleDeleteReview(r.id)} className="btn-delete">Delete</button>
