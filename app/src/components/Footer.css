@@ -96,3 +96,24 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Quotation form — clean, readable service-type dropdown */
+.quote-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  /* custom chevron so the native arrow doesn't clash on dark bg */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.4rem !important;
+}
+/* dropdown popup items stay dark-on-white in every browser */
+.quote-select option {
+  color: #222;
+  background: #fff;
+}
+.quote-select option:disabled {
+  color: #999;
+}

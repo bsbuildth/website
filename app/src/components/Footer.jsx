@@ -161,10 +161,18 @@ const Footer = () => {
               <input type="text" name="contactInfo" placeholder="Line ID / เบอร์โทร *" value={formData.contactInfo} onChange={handleChange} required style={{background: 'rgba(255, 255, 255, 0.15)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: '4px', padding: '0.75rem', width: '100%'}} />
             </div>
             <div className="form-group" style={{marginTop: '1rem'}}>
-              <select name="serviceType" value={formData.serviceType} onChange={handleChange} style={{padding: '0.75rem', background: 'rgba(255, 255, 255, 0.15)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: '4px', width: '100%'}}>
-                <option value="">ประเภทงาน</option>
+              <select
+                name="serviceType"
+                value={formData.serviceType}
+                onChange={handleChange}
+                className="quote-select"
+                style={{padding: '0.75rem', background: 'rgba(255, 255, 255, 0.15)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: '4px', width: '100%'}}
+              >
+                <option value="" disabled hidden>เลือกประเภทงาน</option>
                 {calculatorTypes.map(type => (
-                  <option key={type.id} value={type.type_name}>{type.type_name}</option>
+                  <option key={type.id} value={type.type_name} style={{ color: '#222', background: '#fff' }}>
+                    {type.type_name}
+                  </option>
                 ))}
               </select>
             </div>
