@@ -8,9 +8,9 @@ const MAX_AREA = 300;
 const Calculator = () => {
   const [calculatorTypes, setCalculatorTypes] = useState([]);
   const [projectTypeId, setProjectTypeId] = useState(null);
-  const [area, setArea] = useState(50);
-  const [width, setWidth] = useState('');
-  const [length, setLength] = useState('');
+  const [area, setArea] = useState(25);
+  const [width, setWidth] = useState('5');
+  const [length, setLength] = useState('5');
   const [loading, setLoading] = useState(true);
 
   // เมื่อกรอกกว้าง×ยาว → คำนวณพื้นที่ให้อัตโนมัติ
@@ -49,6 +49,23 @@ const Calculator = () => {
 
   const fmt = (n) => n.toLocaleString('th-TH');
   const pct = ((area - MIN_AREA) / (MAX_AREA - MIN_AREA)) * 100;
+
+  // ส่งสรุปการประเมินไปกรอกในฟอร์มขอใบเสนอราคาอัตโนมัติ (ผู้ใช้พิมพ์ต่อได้)
+  const handleRequestQuote = () => {
+    const selected = calculatorTypes.find(t => t.id === projectTypeId);
+    const typeName = selected?.type_name || '';
+    const dims = (width && length) ? `${width} × ${length} ม. ` : '';
+    const lines = [
+      `สนใจงาน: ${typeName}`,
+      `พื้นที่: ${dims}(${area} ตร.ม.)`,
+      estimate ? `งบประมาณโดยประมาณ: ${fmt(estimate.min)} – ${fmt(estimate.max)} บาท` : '',
+      '',
+      'รายละเอียดเพิ่มเติม: ',
+    ].filter(Boolean);
+    window.dispatchEvent(new CustomEvent('prefill-quote', {
+      detail: { message: lines.join('\n'), serviceType: typeName },
+    }));
+  };
 
   if (loading) {
     return (
@@ -168,7 +185,7 @@ const Calculator = () => {
                   <span className="price-max">{fmt(estimate.max)}</span>
                 </div>
                 <p className="disclaimer">*ราคาประเมินเบื้องต้น อาจเปลี่ยนแปลงตามหน้างานจริง</p>
-                <a href="#contact" className="btn btn-solid calc-cta">ขอใบเสนอราคา →</a>
+                <a href="#contact" className="btn btn-solid calc-cta" onClick={handleRequestQuote}>ขอใบเสนอราคา →</a>
               </div>
             )}
           </div>

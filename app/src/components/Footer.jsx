@@ -58,6 +58,20 @@ const Footer = () => {
     fetchData();
   }, []);
 
+  // Prefill the quotation form from the Calculator's "ขอใบเสนอราคา" button
+  useEffect(() => {
+    const handler = (e) => {
+      const d = e.detail || {};
+      setFormData(prev => ({
+        ...prev,
+        message: d.message || prev.message,
+        serviceType: d.serviceType || prev.serviceType,
+      }));
+    };
+    window.addEventListener('prefill-quote', handler);
+    return () => window.removeEventListener('prefill-quote', handler);
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
