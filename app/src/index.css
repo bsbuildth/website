@@ -32,7 +32,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* gentle section snapping — only nudges when you're near a section top,
+     never fights free scrolling */
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 88px; /* clear the fixed header on snap + anchor jumps */
+}
+main > section { scroll-snap-align: start; }
 
 html, body {
   font-family: var(--font-body);
@@ -162,7 +169,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .reveal.is-visible { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html { scroll-behavior: auto; scroll-snap-type: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
