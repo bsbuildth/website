@@ -158,7 +158,7 @@
 /* ── Luxury editorial card: text overlaid on the image ── */
 .project-card {
   position: relative;
-  border-radius: 2px;
+  border-radius: 10px;
   overflow: hidden;
   border: none;
   transition: box-shadow 0.5s var(--ease), filter 0.5s var(--ease);
@@ -194,38 +194,44 @@
   position: absolute;
   left: 0; right: 0; bottom: 0;
   z-index: 2;
-  padding: 1.8rem 1.7rem;
+  padding: 1.9rem 1.8rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 .project-caption .project-cat {
   font-family: var(--font-body);
   font-size: 0.66rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: #e7c98a;
 }
 .project-caption .project-cat::before {
   content: '';
   display: inline-block;
-  width: 22px; height: 1px;
+  width: 24px; height: 1px;
   background: #e7c98a;
   vertical-align: middle;
-  margin-right: 0.55rem;
-  opacity: 0.8;
+  margin-right: 0.6rem;
+  opacity: 0.85;
 }
 .project-title {
   font-family: var(--font-display);
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #fff;
   margin: 0;
-  letter-spacing: 0;
-  line-height: 1.2;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  letter-spacing: 0.005em;
+  line-height: 1.28;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.55);
+  /* keep every title the same height (2 lines) so captions line up */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.56em;
 }
 
 /* "ดูรายละเอียด →" reveals on hover */
