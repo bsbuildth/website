@@ -260,10 +260,13 @@
   display: flex;
   gap: 0;
   height: 520px;
-  /* full-bleed: break out of .ref-container padding to span the viewport */
+  /* full-bleed: break out of the centered container to span the viewport */
   width: 100vw;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   padding: 0;
   overflow-x: auto;
   scrollbar-width: none;
