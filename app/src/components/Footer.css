@@ -117,3 +117,98 @@
 .quote-select option:disabled {
   color: #999;
 }
+
+/* ═══ Animated Quotation form ═══ */
+.contact-form {
+  position: relative;
+  animation: quoteIn 0.7s cubic-bezier(.2,.8,.2,1) both;
+  transition: box-shadow .35s ease, transform .35s ease;
+}
+.contact-form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+}
+@keyframes quoteIn {
+  from { opacity: 0; transform: translateY(34px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* glowing animated accent ring around the card */
+.contact-form::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 10px;
+  padding: 1.5px;
+  background: linear-gradient(130deg,
+    var(--color-accent, #c19a6b), rgba(255,255,255,0.15),
+    var(--color-accent, #c19a6b), rgba(255,107,107,0.6));
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: .55;
+  animation: quoteRing 7s ease infinite;
+  pointer-events: none;
+}
+@keyframes quoteRing {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* heading with animated underline */
+.contact-form h3 { position: relative; display: inline-block; }
+.contact-form h3::after {
+  content: '';
+  position: absolute; left: 0; bottom: -6px;
+  height: 2px; width: 0;
+  background: var(--color-accent, #c19a6b);
+  animation: quoteUnderline 1s ease 0.4s forwards;
+}
+@keyframes quoteUnderline { to { width: 100%; } }
+
+/* field focus glow */
+.contact-form input,
+.contact-form select,
+.contact-form textarea { transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .2s ease; }
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--color-accent, #c19a6b) !important;
+  background: rgba(255,255,255,0.22) !important;
+  box-shadow: 0 0 0 3px rgba(193,154,107,0.25) !important;
+  transform: translateY(-1px);
+}
+
+/* submit button: sweep shimmer + lift + attention pulse */
+.submit-btn {
+  position: relative;
+  overflow: hidden;
+  animation: quotePulse 2.6s ease-in-out infinite;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute; top: 0; left: -130%;
+  width: 60%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg);
+  animation: quoteShimmer 3.2s ease-in-out infinite;
+}
+.submit-btn:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 26px rgba(193,154,107,0.45);
+  animation-play-state: paused;
+}
+@keyframes quoteShimmer { 0% { left: -130%; } 55%, 100% { left: 150%; } }
+@keyframes quotePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(193,154,107,0.45); }
+  70%      { box-shadow: 0 0 0 12px rgba(193,154,107,0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-form, .contact-form::before, .contact-form h3::after,
+  .submit-btn, .submit-btn::after { animation: none !important; }
+}

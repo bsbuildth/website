@@ -40,10 +40,16 @@ const Header = () => {
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container header-container">
-        <div className="logo">
+        <a
+          href="#"
+          className="logo"
+          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); closeMenu(); }}
+          style={{ cursor: 'pointer', textDecoration: 'none' }}
+          title="กลับหน้าหลัก"
+        >
           <span className="logo-text">BSBuildTh</span>
           <span className="logo-subtext">Professional Construction</span>
-        </div>
+        </a>
         
         <nav className={`nav-menu ${mobileMenuOpen ? 'active' : ''}`}>
           {menus.length === 0 ? (
