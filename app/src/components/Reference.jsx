@@ -118,8 +118,8 @@ const Reference = () => {
                   <span className="ref-acc-cat">{img.category}</span>
                   <h4 className="ref-acc-title">{img.room_type || img.title}</h4>
                   <div className="ref-acc-meta">
-                    {img.style && <span><strong>สไตล์:</strong> {img.style}</span>}
-                    {img.color_tone && <span><strong>โทนสี:</strong> {img.color_tone}</span>}
+                    {img.style && <span className="ref-m-style"><strong>สไตล์:</strong> {img.style}</span>}
+                    {img.color_tone && <span className="ref-m-tone"><strong>โทนสี:</strong> {img.color_tone}</span>}
                   </div>
                   {img.detail && <p className="ref-acc-detail">{img.detail}</p>}
                 </div>

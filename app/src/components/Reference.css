@@ -258,30 +258,33 @@
 /* ═══ Image Accordion (Design Reference) ═══ */
 .ref-accordion {
   display: flex;
-  gap: 10px;
+  gap: 0;
   height: 460px;
   max-width: 1240px;
   margin: 0 auto;
   padding: 0 20px;
   overflow-x: auto;
   scrollbar-width: none;
+  border-radius: 16px;
 }
 .ref-accordion::-webkit-scrollbar { display: none; }
 
 .ref-acc-panel {
   position: relative;
   flex: 0 0 72px;
-  border-radius: 14px;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 10px 28px rgba(26,23,20,0.18);
   transition: flex-basis 0.85s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
 }
+/* round only the outer edges so the strip looks seamless */
+.ref-acc-panel:first-child { border-radius: 16px 0 0 16px; }
+.ref-acc-panel:last-child  { border-radius: 0 16px 16px 0; }
 .ref-acc-panel.active {
   flex: 0 0 min(640px, 72vw);
-  box-shadow: 0 24px 55px rgba(26,23,20,0.4);
+  z-index: 2;
 }
 
 .ref-acc-shade {
@@ -408,16 +411,35 @@
   overflow: hidden;
 }
 
-/* Mobile: vertical accordion */
+/* Mobile: vertical accordion, flush, style-only details */
 @media (max-width: 700px) {
   .ref-accordion {
     flex-direction: column;
     height: auto;
     overflow: visible;
-    gap: 8px;
+    gap: 0;
+    padding: 0 16px;
   }
-  .ref-acc-panel { flex: 0 0 64px; width: 100%; }
-  .ref-acc-panel.active { flex: 0 0 340px; }
-  .ref-acc-num { bottom: 10px; }
-  .ref-acc-title { font-size: 1.2rem; }
+  .ref-acc-panel { flex: 0 0 64px; width: 100%; border-radius: 0; }
+  .ref-acc-panel:first-child { border-radius: 16px 16px 0 0; }
+  .ref-acc-panel:last-child  { border-radius: 0 0 16px 16px; }
+  .ref-acc-panel.active { flex: 0 0 300px; }
+  .ref-acc-title { font-size: 1.2rem; margin-bottom: 0.5rem; }
+  /* collapsed: horizontal title + button on the wide strip */
+  .ref-acc-collapsed {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px;
+  }
+  .ref-acc-vtitle {
+    writing-mode: horizontal-tb;
+    transform: none;
+    max-height: none;
+    max-width: 72%;
+    font-size: 1.05rem;
+  }
+  /* show only the Style line on mobile */
+  .ref-m-tone,
+  .ref-acc-detail { display: none; }
 }
