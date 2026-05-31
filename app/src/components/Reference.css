@@ -285,6 +285,11 @@
 .ref-acc-panel.active {
   flex: 0 0 min(640px, 72vw);
   z-index: 2;
+  /* luxury layered drop shadow on the opened image */
+  box-shadow:
+    0 30px 60px rgba(20, 17, 13, 0.5),
+    0 12px 28px rgba(20, 17, 13, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .ref-acc-shade {
@@ -312,18 +317,14 @@
 .ref-acc-panel.active .ref-acc-collapsed { opacity: 0; pointer-events: none; }
 
 .ref-acc-vtitle {
-  position: absolute;
-  top: 46%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  transform-origin: center;
-  writing-mode: horizontal-tb;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
   color: #fff;
   font-family: var(--font-display, serif);
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.03em;
-  max-width: 360px;
+  max-height: 70%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
