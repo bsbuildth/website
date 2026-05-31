@@ -112,7 +112,7 @@
   overflow: hidden;
   background: #ece8e1;
   aspect-ratio: 16 / 10;
-  max-width: 420px;
+  max-width: 360px;
   margin: 0 auto;
 }
 .proc-stage img { width: 100%; height: 100%; object-fit: cover; display: block; animation: fadeIn 0.25s ease; }
@@ -144,7 +144,7 @@
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
 }
-.proc-caption { text-align: center; color: var(--ink-soft); font-size: 0.88rem; margin: 0.75rem 0 0; }
+.proc-caption { text-align: center; color: var(--ink-soft); font-family: var(--font-display); font-style: italic; font-size: 0.95rem; line-height: 1.6; letter-spacing: 0.01em; margin: 0.9rem auto 0; max-width: 420px; }
 .proc-dots { display: flex; gap: 0.4rem; justify-content: center; margin-top: 0.75rem; }
 .proc-dot {
   width: 8px; height: 8px; border-radius: 50%;
@@ -333,25 +333,32 @@
 .project-modal-title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
-  margin: 0 0 1.25rem;
-  letter-spacing: -0.01em;
+  margin: 0 0 1.4rem;
+  letter-spacing: 0.005em;
+  line-height: 1.22;
 }
 
 .project-modal-description h4,
 .project-modal-process h4 {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--gold);
-  margin: 0 0 0.6rem;
-  padding-bottom: 0.4rem;
+  margin: 0 0 0.7rem;
+  padding-bottom: 0.45rem;
   border-bottom: 1px solid var(--line);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
 }
-.project-modal-description p { color: var(--ink-soft); line-height: 1.75; margin: 0; }
+.project-modal-description p {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.9;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
 .project-modal-process { margin-top: 1.75rem; }
 
 .process-images-grid {
