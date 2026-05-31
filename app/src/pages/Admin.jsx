@@ -51,7 +51,8 @@ const Admin = ({ setIsAuthenticated }) => {
     line_id: '',
     messenger_url: '',
     facebook: '',
-    map_url: ''
+    map_url: '',
+    landmark: ''
   });
   const [websiteContent, setWebsiteContent] = useState([]);
   const [contentKey, setContentKey] = useState('');
@@ -283,7 +284,8 @@ const Admin = ({ setIsAuthenticated }) => {
           line_id: data.line_id || '',
           messenger_url: data.messenger_url || '',
           facebook: data.facebook || '',
-          map_url: data.map_url || ''
+          map_url: data.map_url || '',
+          landmark: data.landmark || ''
         });
       })
       .catch(err => console.error(err));
@@ -746,6 +748,12 @@ const Admin = ({ setIsAuthenticated }) => {
             placeholder="Google Maps URL (เปิด Google Maps → ปักหมุดร้าน → แชร์ → คัดลอกลิงก์ มาวางที่นี่ เพื่อให้แผนที่ตรงเป๊ะ)"
             value={businessInfo.map_url}
             onChange={e => setBusinessInfo({ ...businessInfo, map_url: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="จุดสังเกต / จุดสำคัญ (เช่น ใกล้ BTS อ่อนนุช, ตรงข้ามตลาด... — จะโชว์ในหน้าเว็บ)"
+            value={businessInfo.landmark}
+            onChange={e => setBusinessInfo({ ...businessInfo, landmark: e.target.value })}
           />
           <button type="submit" className="btn btn-solid">Save Business Info</button>
         </form>

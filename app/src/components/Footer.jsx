@@ -50,6 +50,7 @@ const Footer = () => {
             line_id: info.line_id || '',
             address: info.address || 'กรุงเทพมหานคร',
             map_url: info.map_url || '',
+            landmark: info.landmark || '',
             email: info.email || '',
             facebook: info.facebook || ''
           });
@@ -143,29 +144,17 @@ const Footer = () => {
               <p>{businessInfo.phone}</p>
             </a>
             )}
-            {businessInfo.line_id && (
-            <a href={`https://line.me/R/ti/p/${businessInfo.line_id.replace('@', '')}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="LINE OA">
-              <span className="contact-icon">💬</span>
-              <p>LINE</p>
-            </a>
-            )}
             {(businessInfo.map_url || businessInfo.address) && (
-            <a href={businessInfo.map_url || `https://www.google.com/maps/search/${encodeURIComponent(businessInfo.address)}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="Google Maps">
+            <a href={businessInfo.map_url || `https://www.google.com/maps/search/${encodeURIComponent(businessInfo.address)}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="ดูแผนที่ Google Maps">
               <span className="contact-icon">📍</span>
-              <p>Google Maps</p>
+              <p>{businessInfo.address || 'Google Maps'}</p>
             </a>
             )}
-            {businessInfo.facebook && (
-            <a href={businessInfo.facebook} className="contact-item" target="_blank" rel="noopener noreferrer" title="Facebook">
-              <span className="contact-icon">f</span>
-              <p>Facebook</p>
-            </a>
-            )}
-            {businessInfo.email && (
-            <a href={`mailto:${businessInfo.email}`} className="contact-item" title="Email">
-              <span className="contact-icon">✉️</span>
-              <p>Email</p>
-            </a>
+            {businessInfo.landmark && (
+            <div className="contact-item" title="จุดสังเกต">
+              <span className="contact-icon">⭐</span>
+              <p>{businessInfo.landmark}</p>
+            </div>
             )}
           </div>
         </div>
