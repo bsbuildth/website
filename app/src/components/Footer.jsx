@@ -48,7 +48,10 @@ const Footer = () => {
             company_name: info.company_name || 'BS Build',
             phone: info.phone || '02-322-0000',
             line_id: info.line_id || '',
-            address: info.address || 'กรุงเทพมหานคร'
+            address: info.address || 'กรุงเทพมหานคร',
+            map_url: info.map_url || '',
+            email: info.email || '',
+            facebook: info.facebook || ''
           });
         }
       } catch (err) {
@@ -146,8 +149,8 @@ const Footer = () => {
               <p>LINE</p>
             </a>
             )}
-            {businessInfo.address && (
-            <a href={`https://www.google.com/maps/search/${encodeURIComponent(businessInfo.address)}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="Google Maps">
+            {(businessInfo.map_url || businessInfo.address) && (
+            <a href={businessInfo.map_url || `https://www.google.com/maps/search/${encodeURIComponent(businessInfo.address)}`} className="contact-item" target="_blank" rel="noopener noreferrer" title="Google Maps">
               <span className="contact-icon">📍</span>
               <p>Google Maps</p>
             </a>

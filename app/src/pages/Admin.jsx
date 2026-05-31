@@ -50,7 +50,8 @@ const Admin = ({ setIsAuthenticated }) => {
     email: '',
     line_id: '',
     messenger_url: '',
-    facebook: ''
+    facebook: '',
+    map_url: ''
   });
   const [websiteContent, setWebsiteContent] = useState([]);
   const [contentKey, setContentKey] = useState('');
@@ -281,7 +282,8 @@ const Admin = ({ setIsAuthenticated }) => {
           email: data.email || '',
           line_id: data.line_id || '',
           messenger_url: data.messenger_url || '',
-          facebook: data.facebook || ''
+          facebook: data.facebook || '',
+          map_url: data.map_url || ''
         });
       })
       .catch(err => console.error(err));
@@ -738,6 +740,12 @@ const Admin = ({ setIsAuthenticated }) => {
             placeholder="Facebook URL (เช่น https://www.facebook.com/bsbuild — ปุ่ม Facebook จะโผล่เมื่อมีค่า)"
             value={businessInfo.facebook}
             onChange={e => setBusinessInfo({ ...businessInfo, facebook: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Google Maps URL (เปิด Google Maps → ปักหมุดร้าน → แชร์ → คัดลอกลิงก์ มาวางที่นี่ เพื่อให้แผนที่ตรงเป๊ะ)"
+            value={businessInfo.map_url}
+            onChange={e => setBusinessInfo({ ...businessInfo, map_url: e.target.value })}
           />
           <button type="submit" className="btn btn-solid">Save Business Info</button>
         </form>
